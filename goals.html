@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DIARY SMART</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="dashboard.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <div class="main-wrapper">
+      <header class="top-nav">
+        <h2 style="font-size:1.3rem; font-weight:800; color:var(--brand-primary);">Personal Goals Tracker.</h2>
+        <!-- Profile Icon yenye ID sahihi ili ifanye kazi na script.js -->
+        <div id="profileIcon" class="user-avatar" title="User Profile" style="cursor: pointer;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 22px; height: 22px;">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </div>
+      </header>
+      
+      <main class="dashboard-content">
+        <div class="grid-dashboard">
+          
+          <div class="card col-4">
+            <h3>🎓 Study Goal</h3>
+            <p style="color:var(--text-muted); font-size:0.85rem; margin-top:4px;">Master Frontend Engineering</p>
+            <div style="margin-top:20px;">
+              <div style="display:flex; justify-content:space-between;">
+                <span>Progress</span>
+                <strong>85%</strong>
+              </div>
+              <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:85%"></div></div>
+            </div>
+          </div>
+
+          <div class="card col-4">
+            <h3>🏋️ Fitness Goal</h3>
+            <p style="color:var(--text-muted); font-size:0.85rem; margin-top:4px;">Workout 4 times a week</p>
+            <div style="margin-top:20px;">
+              <div style="display:flex; justify-content:space-between;">
+                <span>Progress</span>
+                <strong>60%</strong>
+              </div>
+              <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:60%"></div></div>
+            </div>
+          </div>
+
+          <div class="card col-4">
+            <h3>💼 Business Goal</h3>
+            <p style="color:var(--text-muted); font-size:0.85rem; margin-top:4px;">Launch DIARY SMART SaaS</p>
+            <div style="margin-top:20px;">
+              <div style="display:flex; justify-content:space-between;">
+                <span>Progress</span>
+                <strong>90%</strong>
+              </div>
+              <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:90%"></div></div>
+            </div>
+          </div>
+          
+          <div style="grid-column: 1 / -1; margin-top: 10px;">
+            <button class="btn btn-primary btn-save">Add Goal</button>
+          </div>
+
+        </div>
+        <div><h3 class="app-slogan">Your Life, Organized Smarter.</h3></div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation Bar for DIARY SMART -->
+  <nav class="bottom-nav">
+    <!-- 1. Diary -->
+    <a href="diary.html" class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+        <line x1="9" y1="7" x2="15" y2="7"></line>
+        <line x1="9" y1="11" x2="15" y2="11"></line>
+      </svg>
+    </a>
+
+    <!-- 2. Tasks -->
+    <a href="tasks.html" class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 11 12 14 22 4"></polyline>
+        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+      </svg>
+    </a>
+
+    <!-- 3. Goals (Active hapa) -->
+    <a href="goals.html" class="nav-item active">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <circle cx="12" cy="12" r="6"></circle>
+        <circle cx="12" cy="12" r="2"></circle>
+      </svg>
+    </a>
+
+    <!-- 4. Settings -->
+    <a href="settings.html" class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+      </svg>
+    </a>
+  </nav>
+
+  <!-- Profile Modal / Dropdown Popup -->
+  <div id="profileModal" class="custom-modal">
+    <div class="modal-content profile-card">
+      <div class="profile-header">
+        <h3>User Profile</h3>
+        <button id="closeProfile" class="close-btn">&times;</button>
+      </div>
+      <div class="profile-body">
+        <div class="profile-avatar">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </div>
+        <p><strong>Username:</strong> <span id="profileUsername">Loading...</span></p>
+        <p><strong>Email:</strong> <span id="profileEmail">Loading...</span></p>
+      </div>
+      <div class="profile-footer">
+        <button id="logoutBtn" class="logout-btn">Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

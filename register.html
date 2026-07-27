@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DIARY SMART</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="auth-page">
+
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      
+      <div class="auth-header">
+        <a href="index.html" class="logo" style="display:inline-block;">DIARY <span>SMART</span></a>
+        <h3 style="margin-top: 8px;">Create Account</h3>
+      </div>
+
+      <form id="registerForm">
+        
+        <div class="form-group">
+          <label for="fullname">Full Name</label>
+          <input type="text" id="username" class="form-input" required>        
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" class="form-input" required>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" class="form-input" required>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password</label>
+          <input type="password" id="confirmPassword" class="form-input" required>
+        </div>
+
+        <!-- Checkbox ya Terms & Conditions -->
+        <div class="form-actions">
+          <label for="terms" class="remember-me">
+            <input type="checkbox" id="terms" required>
+            I agree to the <a href="javascript:void(0)" id="openTerms" style="color:var(--brand-primary); font-weight:700;">Terms & Conditions</a>
+          </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-save" style="width:100%;">Create Account</button>
+
+      </form>
+
+      <div style="text-align:center; margin-top:24px; font-size:0.9rem; color: var(--text-muted);">
+        Already have an account? <a href="index.html" style="color:var(--brand-primary); font-weight:700;">Sign in</a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TERMS & CONDITIONS MODAL POP-UP (DIARY SMART) -->
+  <div class="modal-overlay" id="termsModal">
+    <div class="modal-card">
+      <button type="button" class="modal-close" id="closeTerms">&times;</button>
+      
+      <h2 class="modal-title">Terms & Privacy Policy</h2>
+      
+      <div class="modal-body">
+        <p>Welcome to <strong>DIARY SMART</strong>. By creating an account, you agree to comply with and be bound by the following terms and privacy practices:</p>
+        
+        <h4>1. Account Security</h4>
+        <p>You are responsible for maintaining the confidentiality of your login credentials (email and password). Any activity performed under your account is your responsibility.</p>
+        
+        <h4>2. Data Privacy & Confidentiality</h4>
+        <p>Your personal diary entries, tasks, and goals are strictly private. We use secure encryption to process your data and will never sell or share your personal information with third parties.</p>
+        
+        <h4>3. Acceptable Use</h4>
+        <p>DIARY SMART is designed for personal record-keeping, task management, and goal tracking. Users agree not to misuse the platform, attempt unauthorized access, or disrupt system operations.</p>
+        
+        <h4>4. Ownership & Control</h4>
+        <p>You retain full ownership of all content you create on DIARY SMART. You have the right to edit, export, or delete your entries at any time.</p>
+      </div>
+
+      <button type="button" class="btn btn-primary btn-full" id="agreeBtn" style="margin-top: 20px;">I AGREE</button>
+    </div>
+  </div>
+  <!-- ALERT MODAL (SUCCESS / ERROR) -->
+  <div class="modal-overlay" id="alertModal">
+    <div class="modal-card alert-card">
+      
+      <!-- Icon ya Tiktak / Error (Inabadilishwa na JavaScript) -->
+      <div class="status-icon-wrapper" id="statusIcon">
+        <!-- SVG ya Success/Error itawekwa hapa -->
+      </div>
+      
+      <h2 class="alert-title" id="alertTitle">Registration Complete!</h2>
+      <p class="alert-message" id="alertMessage">Congratulations! Your account has been successfully created.</p>
+
+      <button type="button" class="btn btn-primary btn-full" id="alertBtn">OK</button>
+    </div>
+  </div>
+  <!-- JavaScript ya Mfumo na Modal -->
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DIARY SMART</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="auth-page">
+
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      
+      <!-- Brand & Header -->
+      <div class="auth-header">
+        <a href="index.html" class="logo auth-logo">DIARY <span>SMART</span></a>
+        <h3>Welcome Back</h3>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginForm">
+        
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" class="form-input" placeholder="name@example.com" required>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" class="form-input" placeholder="••••••••" required>
+        </div>
+
+        <div class="form-actions">
+          <label class="remember-me" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            <input type="checkbox" id="rememberMe">
+            <span>Remember me</span>
+          </label>
+          <a href="register.html" style="color: var(--brand-primary); font-weight: 600;">Forgot Password?</a>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-save" style="width: 100%;">Sign In</button>
+
+      </form>
+
+      <!-- Footer Link -->
+      <div style="text-align: center; margin-top: 24px; font-size: 0.9rem;">
+        Don't have an account? <a href="register.html" style="color: var(--brand-primary); font-weight: 600;">Register here</a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ALERT MODAL POP-UP (KWA AJILI YA ERRORS & SUCCESS) -->
+  <div class="modal-overlay" id="alertModal">
+    <div class="modal-card alert-card">
+      <div class="status-icon-wrapper" id="statusIcon"></div>
+      <h2 class="alert-title" id="alertTitle"></h2>
+      <p class="alert-message" id="alertMessage"></p>
+      <button type="button" class="btn btn-primary btn-full" id="alertBtn">OK</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

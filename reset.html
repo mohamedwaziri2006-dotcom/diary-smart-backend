@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DIARY SMART</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="auth-page">
+
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      
+      <div class="auth-header">
+        <a href="index.html" class="logo" style="display:inline-block;">DIARY <span>SMART</span></a>
+        <h3 style="margin-top: 8px;">Set New Password</h3>
+        <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 6px;">
+          Please enter your new password below.
+        </p>
+      </div>
+
+      <form id="resetPasswordForm">
+        
+        <div class="form-group" style="margin-top: 20px;">
+          <label for="newPassword">New Password</label>
+          <input type="password" id="newPassword" class="form-input" placeholder="••••••••" required>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmNewPassword">Confirm New Password</label>
+          <input type="password" id="confirmNewPassword" class="form-input" placeholder="••••••••" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-save" style="width:100%; margin-top: 10px;">
+          Update Password
+        </button>
+
+      </form>
+
+      <div style="text-align:center; margin-top:24px; font-size:0.9rem; color: var(--text-muted);">
+        <a href="login.html" style="color:var(--brand-primary); font-weight:700;">Back to Sign in</a>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
