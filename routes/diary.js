@@ -20,12 +20,16 @@ const auth = (req, res, next) => {
 // 1. KUHIFADHI DIARY MPYA
 router.post('/add', auth, async (req, res) => {
   try {
-    const { title, content } = req.body;
+    const { title, date, mood, details, content } = req.body;
+    
     const newDiary = new Diary({
       userId: req.userId,
       title,
-      content
+      date,
+      mood: mood || 'Happy',
+      details: details || content
     });
+
     await newDiary.save();
     res.status(201).json({ message: 'Diary imehifadhiwa kikamilifu!', diary: newDiary });
   } catch (error) {
