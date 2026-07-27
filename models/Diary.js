@@ -15,8 +15,7 @@ const DiarySchema = new mongoose.Schema({
     required: false
   },
   details: {
-    type: String,
-    required: true
+    type: String
   },
   mood: {
     type: String,
