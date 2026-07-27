@@ -12,11 +12,18 @@ const DiarySchema = new mongoose.Schema({
   },
   content: {
     type: String,
+    required: false
+  },
+  details: {
+    type: String,
     required: true
   },
+  mood: {
+    type: String,
+    default: 'Happy'
+  },
   date: {
-    type: Date,
-    default: Date.now
+    type: String
   }
 });
 
