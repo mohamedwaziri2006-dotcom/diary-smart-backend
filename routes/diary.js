@@ -58,3 +58,33 @@ router.delete('/:id', auth, async (req, res) => {
 });
 
 module.exports = router;
+// 3. UPDATE DIARY ENTRY (KUHARIRI)
+router.put('/update/:id', async (req, res) => {
+  try {
+    const { title, date, mood, details } = req.body;
+    const updatedEntry = await Diary.findByIdAndUpdate(
+      req.params.id,
+      { title, date, mood, details },
+      { new: true }
+    );
+    if (!updatedEntry) {
+      return res.status(404).json({ message: 'Diary entry haipatikani' });
+    }
+    res.json({ message: 'Imesasishwa kikamilifu!', updatedEntry });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// 4. DELETE DIARY ENTRY (KUFUTA)
+router.delete('/delete/:id', async (req, res) => {
+  try {
+    const deletedEntry = await Diary.findByIdAndDelete(req.params.id);
+    if (!deletedEntry) {
+      return res.status(404).json({ message: 'Diary entry haipatikani' });
+    }
+    res.json({ message: 'Imefutwa kikamilifu!' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
