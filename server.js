@@ -13,6 +13,9 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+// Hii inaiambia Server ikubali kusoma mafaili ya Frontend (HTML, CSS, JS)
+app.use(express.static(__dirname));
+
 // Kuunganisha Database ya MongoDB Atlas
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ Database ya MongoDB imejiunga kikamilifu!'))
