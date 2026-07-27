@@ -47,28 +47,17 @@ router.get('/my-entries', auth, async (req, res) => {
   }
 });
 
-// 3. KUFUTA DIARY
-router.delete('/:id', auth, async (req, res) => {
-  try {
-    await Diary.findOneAndDelete({ _id: req.params.id, userId: req.userId });
-    res.json({ message: 'Diary imefutwa kikamilifu' });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-});
-
-module.exports = router;
 // 3. UPDATE DIARY ENTRY (KUHARIRI)
-router.put('/update/:id', async (req, res) => {
+router.put('/update/:id', auth, async (req, res) => {
   try {
     const { title, date, mood, details } = req.body;
-    const updatedEntry = await Diary.findByIdAndUpdate(
-      req.params.id,
+    const updatedEntry = await Diary.findOneAndUpdate(
+      { _id: req.params.id, userId: req.userId },
       { title, date, mood, details },
       { new: true }
     );
     if (!updatedEntry) {
-      return res.status(404).json({ message: 'Diary entry haipatikani' });
+      return res.status(404).json({ message: 'Diary entry haipatikani au huna ruhusa' });
     }
     res.json({ message: 'Imesasishwa kikamilifu!', updatedEntry });
   } catch (error) {
@@ -77,14 +66,16 @@ router.put('/update/:id', async (req, res) => {
 });
 
 // 4. DELETE DIARY ENTRY (KUFUTA)
-router.delete('/delete/:id', async (req, res) => {
+router.delete('/delete/:id', auth, async (req, res) => {
   try {
-    const deletedEntry = await Diary.findByIdAndDelete(req.params.id);
+    const deletedEntry = await Diary.findOneAndDelete({ _id: req.params.id, userId: req.userId });
     if (!deletedEntry) {
-      return res.status(404).json({ message: 'Diary entry haipatikani' });
+      return res.status(404).json({ message: 'Diary entry haipatikani au huna ruhusa' });
     }
     res.json({ message: 'Imefutwa kikamilifu!' });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
+
+module.exports = router;
