@@ -164,7 +164,7 @@ button, input, textarea, select {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  padding-bottom: 80px; /* Nafasi kwa ajili ya bottom nav */
+  padding-bottom: 80px;
 }
 
 .top-nav {
@@ -480,27 +480,23 @@ body.auth-page .auth-card {
    9. MODALS & POP-UPS (TERMS & STATUS ALERTS)
    ========================================================================== */
 .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(44, 34, 30, 0.6);
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: rgba(44, 34, 30, 0.6) !important;
   backdrop-filter: blur(4px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.25s ease, visibility 0.25s ease;
-  z-index: 99999;
+  display: none !important;
+  justify-content: center !important;
+  align-items: center !important;
+  z-index: 99999 !important;
   padding: 16px;
   box-sizing: border-box;
 }
 
 .modal-overlay.active {
-  opacity: 1;
-  visibility: visible;
+  display: flex !important;
 }
 
 .modal-card {
@@ -512,13 +508,8 @@ body.auth-page .auth-card {
   position: relative;
   box-shadow: var(--shadow-lg);
   border: 1px solid var(--border-color);
-  transform: translateY(15px);
-  transition: transform 0.25s ease;
   box-sizing: border-box;
-}
-
-.modal-overlay.active .modal-card {
-  transform: translateY(0);
+  margin: auto;
 }
 
 .modal-close {
@@ -646,6 +637,7 @@ body.auth-page .auth-card {
     gap: 0;
   }
 }
+
 /* Profile Modal Styles */
 .custom-modal {
   display: none;
