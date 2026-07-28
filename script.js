@@ -457,7 +457,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 // ==========================================================================
-  // 6. FETCH & DISPLAY TASKS (GROUPED & SORTED DESCENDING BY DATE)
+  // 6. FETCH & DISPLAY TASKS (STRICT DESCENDING DATE GROUPS)
   // ==========================================================================
   const taskGrid = document.querySelector('.grid-dashboard');
   if (taskGrid && window.location.pathname.includes('tasks.html')) {
@@ -478,30 +478,29 @@ document.addEventListener('DOMContentLoaded', () => {
           if (targetColumn && tasks.length > 0) {
             targetColumn.innerHTML = ''; 
 
-            // 1. Kupanga entries zote kuanzia tarehe ya hivi karibuni (Descending Order)
+            // 1. Panga entries zote kuanzia tarehe ya hivi karibuni kwenda nyuma (Descending)
             tasks.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-            // 2. Kuzigawanya kimakundi kulingana na tarehe huku zikiwa bado zimekaa ki-descending
-            const groupedTasks = {};
-            tasks.forEach(task => {
+            // 2. Tumia Map / Array ili kulinda mtiririko wa tarehe jinsi ulivyopangwa
+            const groupsMap = new Map();
+            
+            tasks.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(task => {
               const taskDate = task.date ? task.date.split('T')[0] : 'No Date';
-              if (!groupedTasks[taskDate]) {
-                groupedTasks[taskDate] = [];
+              if (!groupsMap.has(taskDate)) {
+                groupsMap.set(taskDate, []);
               }
-              groupedTasks[taskDate].push(task);
+              groupsMap.get(taskDate).push(task);
             });
 
-            // 3. Kuchora makundi hayo kwenye ukurasa (Tarehe ya leo/karibuni itakuja juu kabisa)
-            for (const [dateStr, dateTasks] of Object.entries(groupedTasks)) {
-              
+            // 3. Kuchora makundi kwenye ukurasa kwa kufuata ule mpangilio wa Map (Descending)
+            groupsMap.forEach((dateTasks, dateStr) => {
               const dateSection = document.createElement('div');
               dateSection.style.marginBottom = '20px';
 
-              // Lebo ya tarehe kwa juu ya kundi
+              // Lebo ya tarehe
               const dateHeader = document.createElement('div');
               dateHeader.style.cssText = 'font-weight: bold; font-size: 0.95rem; margin-bottom: 8px; color: #333; background: #f1f5f9; padding: 8px 12px; border-radius: 6px;';
               
-              // Unaweza kuweka maandishi maalum kama ni ya leo
               let displayDateText = dateStr;
               const todayStr = new Date().toISOString().split('T')[0];
               if (dateStr === todayStr) {
@@ -542,7 +541,7 @@ document.addEventListener('DOMContentLoaded', () => {
               });
 
               targetColumn.appendChild(dateSection);
-            }
+            });
           }
         }
       } catch (error) {
