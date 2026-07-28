@@ -11,7 +11,6 @@ function triggerAlert(type, title, message, redirectUrl = null) {
   const alertTitle = document.getElementById('alertTitle');
   const alertMessage = document.getElementById('alertMessage');
   const statusIcon = document.getElementById('statusIcon');
-  const alertBtn = document.getElementById('alertBtn');
 
   // Ikiwa modal haipo kabisa kwenye HTML, onyo litatolewa kwenye Console badala ya Browser Alert
   if (!alertModal) {
@@ -358,7 +357,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
-// ==========================================================================
+
+  // ==========================================================================
   // 6. FETCH & DISPLAY TASKS (FULL CONTAINER GRID LAYOUT)
   // ==========================================================================
   const taskGrid = document.querySelector('.grid-dashboard') || document.querySelector('main') || document.body;
@@ -375,7 +375,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const tasks = await response.json();
 
         if (response.ok && Array.isArray(tasks)) {
-          // Tafuta eneo sahihi la kuweka taarifa au tengeneza moja kwa moja kama halipo
           let containerArea = document.getElementById('dynamicTasksContainer');
           if (!containerArea) {
             containerArea = document.createElement('div');
@@ -393,7 +392,6 @@ document.addEventListener('DOMContentLoaded', () => {
           containerArea.innerHTML = '';
 
           if (tasks.length > 0) {
-            // Kupanga tarehe kuanzia mpya kwenda ya zamani
             tasks.sort((a, b) => new Date(b.date) - new Date(a.date));
 
             const groupsMap = new Map();
@@ -421,7 +419,6 @@ document.addEventListener('DOMContentLoaded', () => {
               dateHeader.textContent = `📅 ${displayDateText}`;
               dateSection.appendChild(dateHeader);
 
-              // Grid inayoweka kadi zikae kushoto na kulia (Responsive Cards Grid)
               const cardsGrid = document.createElement('div');
               cardsGrid.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;';
 
@@ -470,6 +467,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     fetchTasks();
   }
+
   // ==========================================================================
   // 7. PROFILE MODAL & USER INFO HANDLING
   // ==========================================================================
@@ -550,7 +548,6 @@ document.addEventListener('DOMContentLoaded', () => {
       document.querySelector('main')?.appendChild(targetArea) || document.body.appendChild(targetArea);
     }
 
-    // Kuunganisha kitufe cha "Add Goal" kupitia ID yake sahihi kutoka HTML
     const addGoalTriggerBtn = document.getElementById('addGoalBtn');
     
     if (addGoalTriggerBtn) {
@@ -739,15 +736,21 @@ document.addEventListener('DOMContentLoaded', () => {
       cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
 
       newOkBtn.addEventListener('click', () => {
-        const val = inputField.value;
-        if (callback) callback(val, newOkBtn);
+        callback(inputField.value, newOkBtn);
       });
 
       newCancelBtn.addEventListener('click', () => {
         customModal.style.display = 'none';
       });
+
+      inputField.onkeydown = (e) => {
+        if (e.key === 'Enter') {
+          newOkBtn.click();
+        }
+      };
     }
 
     fetchGoals();
   }
+
 });
