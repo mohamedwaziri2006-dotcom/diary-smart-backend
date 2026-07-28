@@ -358,9 +358,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
-
-  // ==========================================================================
-  // 6. FETCH & DISPLAY TASKS (STRICT DESCENDING DATE GROUPS)
+// ==========================================================================
+  // 6. FETCH & DISPLAY TASKS (GRID LAYOUT & DESCENDING DATE GROUPS)
   // ==========================================================================
   const taskGrid = document.querySelector('.grid-dashboard');
   if (taskGrid && window.location.pathname.includes('tasks.html')) {
@@ -376,11 +375,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const tasks = await response.json();
 
         if (response.ok && Array.isArray(tasks)) {
-          const targetColumn = taskGrid.querySelector('.col-4');
+          const targetColumn = taskGrid.querySelector('.col-4') || taskGrid;
           
           if (targetColumn && tasks.length > 0) {
             targetColumn.innerHTML = ''; 
 
+            // Kupanga tarehe kuanzia mpya kwenda ya zamani
             tasks.sort((a, b) => new Date(b.date) - new Date(a.date));
 
             const groupsMap = new Map();
@@ -395,10 +395,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             groupsMap.forEach((dateTasks, dateStr) => {
               const dateSection = document.createElement('div');
-              dateSection.style.marginBottom = '20px';
+              dateSection.style.marginBottom = '25px';
+              dateSection.style.gridColumn = '1 / -1'; // Kichwa cha tarehe kikae juu ya gridi nzima
 
               const dateHeader = document.createElement('div');
-              dateHeader.style.cssText = 'font-weight: bold; font-size: 0.95rem; margin-bottom: 8px; color: #333; background: #f1f5f9; padding: 8px 12px; border-radius: 6px;';
+              dateHeader.style.cssText = 'font-weight: bold; font-size: 0.95rem; margin-bottom: 12px; color: #333; background: #f1f5f9; padding: 8px 12px; border-radius: 6px;';
               
               let displayDateText = dateStr;
               const todayStr = new Date().toISOString().split('T')[0];
@@ -409,19 +410,25 @@ document.addEventListener('DOMContentLoaded', () => {
               dateHeader.textContent = `📅 ${displayDateText}`;
               dateSection.appendChild(dateHeader);
 
+              // Container ndogo ya gridi kwa ajili ya kadi za tarehe hiyo
+              const cardsContainer = document.createElement('div');
+              cardsContainer.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;';
+
               dateTasks.forEach(task => {
                 const taskCard = document.createElement('div');
                 taskCard.className = 'card';
-                taskCard.style.cssText = 'margin-bottom: 10px; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05);';
+                taskCard.style.cssText = 'margin-bottom: 0; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; flexDirection: column; justify-content: space-between;';
 
                 taskCard.innerHTML = `
-                  <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <strong>${task.title}</strong>
-                    <span style="font-size: 0.75rem; background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-weight: 600;">Mood: ${task.mood || 'Happy'}</span>
+                  <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <strong>${task.title}</strong>
+                      <span style="font-size: 0.75rem; background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-weight: 600;">Mood: ${task.mood || 'Happy'}</span>
+                    </div>
+                    <p style="font-size:0.85rem; color:#444; margin-top:8px; word-break: break-word;">${task.details || task.content || ''}</p>
                   </div>
-                  <p style="font-size:0.85rem; color:#444; margin-top:8px;">${task.details || task.content || ''}</p>
                   
-                  <div style="margin-top: 10px; display: flex; gap: 10px;">
+                  <div style="margin-top: 15px; display: flex; gap: 10px;">
                     <button class="update-btn" style="padding: 4px 10px; background: #ffc107; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Update</button>
                     <button class="delete-btn" style="padding: 4px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Delete</button>
                   </div>
@@ -435,9 +442,10 @@ document.addEventListener('DOMContentLoaded', () => {
                   deleteDiary(task._id);
                 });
 
-                dateSection.appendChild(taskCard);
+                cardsContainer.appendChild(taskCard);
               });
 
+              dateSection.appendChild(cardsContainer);
               targetColumn.appendChild(dateSection);
             });
           }
@@ -449,7 +457,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     fetchTasks();
   }
-
   // ==========================================================================
   // 7. PROFILE MODAL & USER INFO HANDLING
   // ==========================================================================
