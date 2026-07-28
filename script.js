@@ -490,7 +490,8 @@ document.addEventListener('DOMContentLoaded', () => {
       window.location.href = 'index.html';
     });
   }
-// ==========================================================================
+
+  // ==========================================================================
   // 8. GOALS TRACKER LOGIC (100% ENGLISH MODAL)
   // ==========================================================================
   if (window.location.pathname.includes('goals.html')) {
@@ -534,9 +535,8 @@ document.addEventListener('DOMContentLoaded', () => {
       document.querySelector('main')?.appendChild(targetArea) || document.body.appendChild(targetArea);
     }
 
-    // Kuunganisha kitufe cha "Add Goal" kilichopo kwenye HTML ya ukurasa wako
-    const addGoalTriggerBtn = document.querySelector('.add-goal-btn') || document.querySelector('button'); 
-    // Kama una ID maalum kwenye kitufe chako cha Add Goal (mfano id="addGoalBtn"), badilisha hapo juu iwe: document.getElementById('addGoalBtn')
+    // Kuunganisha kitufe cha "Add Goal" kupitia ID yake sahihi kutoka HTML
+    const addGoalTriggerBtn = document.getElementById('addGoalBtn');
     
     if (addGoalTriggerBtn) {
       addGoalTriggerBtn.addEventListener('click', (e) => {
@@ -720,3 +720,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     fetchGoals();
   }
+});
