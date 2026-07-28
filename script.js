@@ -551,106 +551,123 @@ document.addEventListener('DOMContentLoaded', () => {
 
     fetchTasks();
   }
-  /* ==========================================================================
-   8. GOALS TRACKER LOGIC (ADD, UPDATE, DELETE, COMPLETE CHECKBOX)
-   ========================================================================== */
-const goalsContainer = document.querySelector('.grid-dashboard') || document.body;
-if (window.location.pathname.includes('goals.html')) {
-  
-  // Kitendakazi cha kuchora/kuleta malengo kutoka Backend (Unaweza kubadilisha endpoint kulingana na API yako ya Goals)
-  async function fetchGoals() {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/goals/my-goals`, {
-        method: 'GET',
-        headers: {
-          'Authorization': 'Bearer ' + (localStorage.getItem('token') || '')
-        }
-      });
+  // ==========================================================================
+  // 8. GOALS TRACKER LOGIC (INLINE FORM INSTEAD OF BROWSER PROMPT)
+  // ==========================================================================
+  const goalsContainer = document.querySelector('.grid-dashboard') || document.body;
+  if (window.location.pathname.includes('goals.html')) {
+    
+    // 1. Kutengeneza fomu ya kuandikia goal hapo hapo kwenye ukurasa (kama haipo tayari)
+    let targetArea = document.getElementById('goalsListArea');
+    if (!targetArea) {
+      targetArea = document.createElement('div');
+      targetArea.id = 'goalsListArea';
+      targetArea.style.cssText = 'max-width: 800px; margin: 20px auto; padding: 0 20px;';
+      document.querySelector('main')?.appendChild(targetArea) || document.body.appendChild(targetArea);
+    }
 
-      const goals = await response.json();
+    // Weka eneo la fomu ya kuongezea goal chini ya kitufe cha Add Goal
+    const dashboardGrid = document.querySelector('.grid-dashboard');
+    let formWrapper = document.getElementById('inlineGoalForm');
+    if (!formWrapper && dashboardGrid) {
+      formWrapper = document.createElement('div');
+      formWrapper.id = 'inlineGoalForm';
+      formWrapper.style.cssText = 'grid-column: 1 / -1; margin-top: 15px; display: none; background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #cbd5e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05);';
+      formWrapper.innerHTML = `
+        <input type="text" id="goalInputText" placeholder="Andika lengo lako jipya hapa..." style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; margin-bottom: 10px; outline: none;">
+        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+          <button id="cancelGoalBtn" style="padding: 6px 14px; background: #94a3b8; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancel</button>
+          <button id="saveGoalBtn" style="padding: 6px 14px; background: var(--brand-primary, #d97706); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">Save Goal</button>
+        </div>
+      `;
+      dashboardGrid.appendChild(formWrapper);
+    }
 
-      if (response.ok && Array.isArray(goals)) {
-        // Tafuta eneo la kuonyesha malengo au tengeneza container kama haipo
-        let targetArea = document.getElementById('goalsListArea');
-        if (!targetArea) {
-          targetArea = document.createElement('div');
-          targetArea.id = 'goalsListArea';
-          targetArea.style.cssText = 'max-width: 800px; margin: 20px auto; padding: 0 20px;';
-          document.querySelector('main')?.appendChild(targetArea) || document.body.appendChild(targetArea);
-        }
-        targetArea.innerHTML = '';
-
-        // Panga malengo kuanzia tarehe ya hivi karibuni (Descending Order)
-        goals.sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt));
-
-        // Panga kimakundi kulingana na tarehe
-        const groupsMap = new Map();
-        goals.forEach(goal => {
-          const rawDate = goal.date || goal.createdAt;
-          const goalDate = rawDate ? rawDate.split('T')[0] : 'No Date';
-          if (!groupsMap.has(goalDate)) {
-            groupsMap.set(goalDate, []);
+    // Kitendakazi cha kuleta malengo kutoka Backend
+    async function fetchGoals() {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/goals/my-goals`, {
+          method: 'GET',
+          headers: {
+            'Authorization': 'Bearer ' + (localStorage.getItem('token') || '')
           }
-          groupsMap.get(goalDate).push(goal);
         });
 
-        // Kuchora makundi ya tarehe na malengo yake
-        groupsMap.forEach((dateGoals, dateStr) => {
-          const dateSection = document.createElement('div');
-          dateSection.style.marginBottom = '20px';
+        const goals = await response.json();
 
-          const dateHeader = document.createElement('div');
-          dateHeader.style.cssText = 'font-weight: bold; font-size: 0.95rem; margin-bottom: 8px; color: #333; background: #f1f5f9; padding: 8px 12px; border-radius: 6px;';
-          
-          let displayDateText = dateStr;
-          const todayStr = new Date().toISOString().split('T')[0];
-          if (dateStr === todayStr) {
-            displayDateText = `Today - ${dateStr}`;
-          }
+        if (response.ok && Array.isArray(goals)) {
+          targetArea.innerHTML = '';
 
-          dateHeader.textContent = `📅 ${displayDateText}`;
-          dateSection.appendChild(dateHeader);
+          // Panga malengo kuanzia tarehe ya hivi karibuni (Descending Order)
+          goals.sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt));
 
-          dateGoals.forEach(goal => {
-            const goalCard = document.createElement('div');
-            goalCard.className = 'card';
-            goalCard.style.cssText = `margin-bottom: 10px; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; ${goal.completed ? 'opacity: 0.6; background: #f8fafc;' : ''}`;
+          // Panga kimakundi kulingana na tarehe
+          const groupsMap = new Map();
+          goals.forEach(goal => {
+            const rawDate = goal.date || goal.createdAt;
+            const goalDate = rawDate ? rawDate.split('T')[0] : 'No Date';
+            if (!groupsMap.has(goalDate)) {
+              groupsMap.set(goalDate, []);
+            }
+            groupsMap.get(goalDate).push(goal);
+          });
 
-            goalCard.innerHTML = `
-              <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
-                <input type="checkbox" class="complete-checkbox" ${goal.completed ? 'checked' : ''} style="width: 20px; height: 20px; cursor: pointer;">
-                <div>
-                  <h4 style="margin: 0; font-size: 1rem; ${goal.completed ? 'text-decoration: line-through; color: #888;' : 'color: #1e293b;'}">${goal.title || goal.goalText}</h4>
-                  <span style="font-size: 0.75rem; color: #64748b;">Saved on: ${goal.date || 'Today'}</span>
+          // Kuchora makundi ya tarehe na malengo yake
+          groupsMap.forEach((dateGoals, dateStr) => {
+            const dateSection = document.createElement('div');
+            dateSection.style.marginBottom = '20px';
+
+            const dateHeader = document.createElement('div');
+            dateHeader.style.cssText = 'font-weight: bold; font-size: 0.95rem; margin-bottom: 8px; color: #333; background: #f1f5f9; padding: 8px 12px; border-radius: 6px;';
+            
+            let displayDateText = dateStr;
+            const todayStr = new Date().toISOString().split('T')[0];
+            if (dateStr === todayStr) {
+              displayDateText = `Today - ${dateStr}`;
+            }
+
+            dateHeader.textContent = `📅 ${displayDateText}`;
+            dateSection.appendChild(dateHeader);
+
+            dateGoals.forEach(goal => {
+              const goalCard = document.createElement('div');
+              goalCard.className = 'card';
+              goalCard.style.cssText = `margin-bottom: 10px; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; ${goal.completed ? 'opacity: 0.6; background: #f8fafc;' : ''}`;
+
+              goalCard.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                  <input type="checkbox" class="complete-checkbox" ${goal.completed ? 'checked' : ''} style="width: 20px; height: 20px; cursor: pointer;">
+                  <div>
+                    <h4 style="margin: 0; font-size: 1rem; ${goal.completed ? 'text-decoration: line-through; color: #888;' : 'color: #1e293b;'}">${goal.title || goal.goalText}</h4>
+                    <span style="font-size: 0.75rem; color: #64748b;">Saved on: ${goal.date || 'Today'}</span>
+                  </div>
                 </div>
-              </div>
-              <div style="display: flex; gap: 8px;">
-                <button class="update-goal-btn" style="padding: 4px 8px; background: #ffc107; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Edit</button>
-                <button class="delete-goal-btn" style="padding: 4px 8px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Delete</button>
-              </div>
-            `;
+                <div style="display: flex; gap: 8px;">
+                  <button class="update-goal-btn" style="padding: 4px 8px; background: #ffc107; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Edit</button>
+                  <button class="delete-goal-btn" style="padding: 4px 8px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Delete</button>
+                </div>
+              `;
 
-            // Kitufe cha kuweka tiki (Complete / Uncomplete)
-            const checkbox = goalCard.querySelector('.complete-checkbox');
-            checkbox.addEventListener('change', async () => {
-              try {
-                await fetch(`${API_BASE_URL}/api/goals/update/${goal._id}`, {
-                  method: 'PUT',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + (localStorage.getItem('token') || '')
-                  },
-                  body: JSON.stringify({ completed: checkbox.checked })
-                });
-                fetchGoals(); // Rejesha upya orodha
-              } catch (err) {
-                console.error('Error updating status:', err);
-              }
-            });
+              // Kitufe cha kuweka tiki (Complete / Uncomplete)
+              const checkbox = goalCard.querySelector('.complete-checkbox');
+              checkbox.addEventListener('change', async () => {
+                try {
+                  await fetch(`${API_BASE_URL}/api/goals/update/${goal._id}`, {
+                    method: 'PUT',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': 'Bearer ' + (localStorage.getItem('token') || '')
+                    },
+                    body: JSON.stringify({ completed: checkbox.checked })
+                  });
+                  fetchGoals();
+                } catch (err) {
+                  console.error('Error updating status:', err);
+                }
+              });
 
-            // Kifutio cha Lengo (Delete)
-            goalCard.querySelector('.delete-goal-btn').addEventListener('click', async () => {
-              if (confirm('Are you sure you want to delete this goal?')) {
+              // Kifutio cha Lengo (Delete) - Hapa tumetumia custom confirm badala ya popup ya browser kama iliwezekana, au tunafuta moja kwa moja
+              goalCard.querySelector('.delete-goal-btn').addEventListener('click', async () => {
                 try {
                   const res = await fetch(`${API_BASE_URL}/api/goals/delete/${goal._id}`, {
                     method: 'DELETE',
@@ -660,51 +677,69 @@ if (window.location.pathname.includes('goals.html')) {
                 } catch (err) {
                   console.error('Delete Goal Error:', err);
                 }
-              }
+              });
+
+              // Kitufe cha Edit / Update Lengo (Hapa tunatumia inline input badala ya prompt)
+              goalCard.querySelector('.update-goal-btn').addEventListener('click', () => {
+                const currentTitle = goal.title || goal.goalText;
+                const newTitle = prompt('Update your goal:', currentTitle); // Unaweza kubadilisha hii pia kama hutaki kabisa prompt
+                if (newTitle !== null && newTitle.trim() !== '') {
+                  updateGoalText(goal._id, newTitle.trim());
+                }
+              });
+
+              dateSection.appendChild(goalCard);
             });
 
-            // Kitufe cha Edit / Update Lengo
-            goalCard.querySelector('.update-goal-btn').addEventListener('click', () => {
-              const newTitle = prompt('Update your goal:', goal.title || goal.goalText);
-              if (newTitle !== null && newTitle.trim() !== '') {
-                updateGoalText(goal._id, newTitle.trim());
-              }
-            });
-
-            dateSection.appendChild(goalCard);
+            targetArea.appendChild(dateSection);
           });
-
-          targetArea.appendChild(dateSection);
-        });
+        }
+      } catch (error) {
+        console.error('Error fetching goals:', error);
       }
-    } catch (error) {
-      console.error('Error fetching goals:', error);
     }
-  }
 
-  // Kitendakazi cha kuedit maandishi ya Lengo kwenda Backend
-  async function updateGoalText(id, title) {
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/goals/update/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + (localStorage.getItem('token') || '')
-        },
-        body: JSON.stringify({ title })
+    async function updateGoalText(id, title) {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/goals/update/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + (localStorage.getItem('token') || '')
+          },
+          body: JSON.stringify({ title })
+        });
+        if (res.ok) fetchGoals();
+      } catch (err) {
+        console.error('Update Goal Error:', err);
+      }
+    }
+
+    // Kusimamia kitufe cha "Add Goal" kufungua fomu ya ndani
+    const addGoalBtn = document.getElementById('addGoalBtn');
+    const goalInputText = document.getElementById('goalInputText');
+    const saveGoalBtn = document.getElementById('saveGoalBtn');
+    const cancelGoalBtn = document.getElementById('cancelGoalBtn');
+
+    if (addGoalBtn && formWrapper) {
+      addGoalBtn.addEventListener('click', () => {
+        formWrapper.style.display = formWrapper.style.display === 'none' ? 'block' : 'none';
+        if (goalInputText) goalInputText.focus();
       });
-      if (res.ok) fetchGoals();
-    } catch (err) {
-      console.error('Update Goal Error:', err);
     }
-  }
 
-  // Kitufe cha "Add Goal" kinachofungua Prompt au Modal ya kuongeza lengo jipya
-  const addGoalBtn = document.querySelector('button, .add-goal-btn') || document.getElementById('addGoalBtn');
-  if (addGoalBtn) {
-    addGoalBtn.addEventListener('click', async () => {
-      const goalTitle = prompt('Enter your new personal goal:');
-      if (goalTitle && goalTitle.trim() !== '') {
+    if (cancelGoalBtn && formWrapper) {
+      cancelGoalBtn.addEventListener('click', () => {
+        formWrapper.style.display = 'none';
+        if (goalInputText) goalInputText.value = '';
+      });
+    }
+
+    if (saveGoalBtn && goalInputText) {
+      saveGoalBtn.addEventListener('click', async () => {
+        const goalTitle = goalInputText.value.trim();
+        if (!goalTitle) return;
+
         const userId = localStorage.getItem('userId');
         const currentDate = new Date().toISOString().split('T')[0];
 
@@ -715,10 +750,12 @@ if (window.location.pathname.includes('goals.html')) {
               'Content-Type': 'application/json',
               'Authorization': 'Bearer ' + (localStorage.getItem('token') || '')
             },
-            body: JSON.stringify({ userId, title: goalTitle.trim(), date: currentDate, completed: false })
+            body: JSON.stringify({ userId, title: goalTitle, date: currentDate, completed: false })
           });
 
           if (response.ok) {
+            goalInputText.value = '';
+            formWrapper.style.display = 'none';
             fetchGoals();
           } else {
             alert('Failed to add goal.');
@@ -726,10 +763,8 @@ if (window.location.pathname.includes('goals.html')) {
         } catch (err) {
           console.error('Add Goal Error:', err);
         }
-      }
-    });
-  }
+      });
+    }
 
-  // Anza kupakia goals ukurasa ukifunguka
-  fetchGoals();
-}
+    fetchGoals();
+  }
