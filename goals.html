@@ -31,10 +31,12 @@
         <div style="background: #fff; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
           <form id="goalEntryForm">
             <input type="hidden" id="editGoalId" value="">
-            <input type="hidden" id="goalDetailsInput" value=""> <!-- Imefichwa ili isisumbue lakini data isomeke -->
+            
+            <!-- Hili limewekwa display:none ili JavaScript isisome error lakini fomu iwe fupi -->
+            <textarea id="goalDetailsInput" style="display: none;"></textarea>
             
             <div style="margin-bottom: 15px;">
-              <input type="text" id="goalTitleInput" placeholder="What is your goal?" required style="width: 100%; padding: 12px 15px; background: #fffdf5; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 0.95rem; outline: none; box-sizing: border-box;">
+              <input type="text" id="goalTitleInput" required style="width: 100%; padding: 12px 15px; background: #fffdf5; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 0.95rem; outline: none; box-sizing: border-box;">
             </div>
 
             <div style="display: flex; gap: 15px; margin-bottom: 20px; align-items: center;">
@@ -54,7 +56,10 @@
           <h3 style="color: #1e293b; font-size: 1.1rem; margin-bottom: 12px;">Your Saved Goals</h3>
           <div id="goalsListArea"></div>
         </div>
-          <h3 class="app-slogan">Your Life, Organized Smarter.</h3>
+
+        <div style="text-align: center; margin-top: 30px;">
+          <h3 class="app-slogan" style="font-size: 0.9rem; color: #64748b;">Your Life, Organized Smarter.</h3>
+        </div>
       </main>
     </div>
   </div>
