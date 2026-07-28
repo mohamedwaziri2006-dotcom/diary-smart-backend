@@ -4,9 +4,10 @@ const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
 
-// Kuagiza Routes (Njia za Auth na Diary)
+// Kuagiza Routes (Njia za Auth, Diary, na Goals)
 const authRoutes = require('./routes/auth');
 const diaryRoutes = require('./routes/diary');
+const goalsRoutes = require('./routes/goals'); // <--- Njia mpya ya Goals
 
 const app = express();
 
@@ -25,6 +26,7 @@ mongoose.connect(process.env.MONGO_URI)
 // Njia za API (API Endpoints)
 app.use('/api/auth', authRoutes);
 app.use('/api/diary', diaryRoutes);
+app.use('/api/goals', goalsRoutes); // <--- Kusajili API ya Goals kwenye Server
 
 // Test Route ya API
 app.get('/api/status', (req, res) => {
