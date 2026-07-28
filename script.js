@@ -456,3 +456,69 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 });
+// ==========================================================================
+  // 6. FETCH & DISPLAY TASKS (SORTED OR FILTERED BY DATE)
+  // ==========================================================================
+  const taskGrid = document.querySelector('.grid-dashboard');
+  if (taskGrid && window.location.pathname.includes('tasks.html')) {
+    async function fetchTasks() {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/diary/my-entries`, {
+          method: 'GET',
+          headers: {
+            'Authorization': 'Bearer ' + (localStorage.getItem('token') || '')
+          }
+        });
+
+        const tasks = await response.json();
+
+        if (response.ok && Array.isArray(tasks)) {
+          const targetColumn = taskGrid.querySelector('.col-4');
+          
+          if (targetColumn && tasks.length > 0) {
+            targetColumn.innerHTML = ''; 
+
+            // Kupanga tasks kuanzia tarehe ya karibuni zaidi kwenda nyuma (Latest first)
+            tasks.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            tasks.forEach(task => {
+              const taskCard = document.createElement('div');
+              taskCard.className = 'card';
+              taskCard.style.marginBottom = '12px';
+              taskCard.style.padding = '15px';
+              taskCard.style.border = '1px solid #ddd';
+              taskCard.style.borderRadius = '8px';
+
+              taskCard.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <strong>${task.title}</strong>
+                  <span style="font-size: 0.75rem; background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-weight: 600;">📅 ${task.date || 'No Date'}</span>
+                </div>
+                <p style="font-size:0.8rem; color:var(--text-muted); margin-top:6px;">Mood: ${task.mood || 'Happy'}</p>
+                <p style="font-size:0.85rem; color:#444; margin-top:6px;">${task.details || task.content || ''}</p>
+                
+                <div style="margin-top: 10px; display: flex; gap: 10px;">
+                  <button class="update-btn" style="padding: 5px 10px; background: #ffc107; border: none; border-radius: 4px; cursor: pointer;">Update</button>
+                  <button class="delete-btn" style="padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Delete</button>
+                </div>
+              `;
+
+              taskCard.querySelector('.update-btn').addEventListener('click', () => {
+                editDiary(task._id, task.title, task.date, task.mood, task.details || task.content || '');
+              });
+
+              taskCard.querySelector('.delete-btn').addEventListener('click', () => {
+                deleteDiary(task._id);
+              });
+
+              targetColumn.appendChild(taskCard);
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching tasks:', error);
+      }
+    }
+
+    fetchTasks();
+  }
