@@ -359,10 +359,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 // ==========================================================================
-  // 6. FETCH & DISPLAY TASKS (GRID LAYOUT & DESCENDING DATE GROUPS)
+  // 6. FETCH & DISPLAY TASKS (FULL CONTAINER GRID LAYOUT)
   // ==========================================================================
-  const taskGrid = document.querySelector('.grid-dashboard');
-  if (taskGrid && window.location.pathname.includes('tasks.html')) {
+  const taskGrid = document.querySelector('.grid-dashboard') || document.querySelector('main') || document.body;
+  if (window.location.pathname.includes('tasks.html')) {
     async function fetchTasks() {
       try {
         const response = await fetch(`${API_BASE_URL}/api/diary/my-entries`, {
@@ -375,16 +375,28 @@ document.addEventListener('DOMContentLoaded', () => {
         const tasks = await response.json();
 
         if (response.ok && Array.isArray(tasks)) {
-          const targetColumn = taskGrid.querySelector('.col-4') || taskGrid;
-          
-          if (targetColumn && tasks.length > 0) {
-            targetColumn.innerHTML = ''; 
+          // Tafuta eneo sahihi la kuweka taarifa au tengeneza moja kwa moja kama halipo
+          let containerArea = document.getElementById('dynamicTasksContainer');
+          if (!containerArea) {
+            containerArea = document.createElement('div');
+            containerArea.id = 'dynamicTasksContainer';
+            containerArea.style.cssText = 'max-width: 1100px; margin: 20px auto; padding: 0 20px;';
+            
+            if (taskGrid && taskGrid !== document.body) {
+              taskGrid.innerHTML = '';
+              taskGrid.appendChild(containerArea);
+            } else {
+              document.body.appendChild(containerArea);
+            }
+          }
 
+          containerArea.innerHTML = '';
+
+          if (tasks.length > 0) {
             // Kupanga tarehe kuanzia mpya kwenda ya zamani
             tasks.sort((a, b) => new Date(b.date) - new Date(a.date));
 
             const groupsMap = new Map();
-            
             tasks.forEach(task => {
               const taskDate = task.date ? task.date.split('T')[0] : 'No Date';
               if (!groupsMap.has(taskDate)) {
@@ -395,11 +407,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             groupsMap.forEach((dateTasks, dateStr) => {
               const dateSection = document.createElement('div');
-              dateSection.style.marginBottom = '25px';
-              dateSection.style.gridColumn = '1 / -1'; // Kichwa cha tarehe kikae juu ya gridi nzima
+              dateSection.style.marginBottom = '30px';
 
               const dateHeader = document.createElement('div');
-              dateHeader.style.cssText = 'font-weight: bold; font-size: 0.95rem; margin-bottom: 12px; color: #333; background: #f1f5f9; padding: 8px 12px; border-radius: 6px;';
+              dateHeader.style.cssText = 'font-weight: bold; font-size: 1rem; margin-bottom: 15px; color: #1e293b; background: #f1f5f9; padding: 10px 15px; border-radius: 8px;';
               
               let displayDateText = dateStr;
               const todayStr = new Date().toISOString().split('T')[0];
@@ -410,27 +421,27 @@ document.addEventListener('DOMContentLoaded', () => {
               dateHeader.textContent = `📅 ${displayDateText}`;
               dateSection.appendChild(dateHeader);
 
-              // Container ndogo ya gridi kwa ajili ya kadi za tarehe hiyo
-              const cardsContainer = document.createElement('div');
-              cardsContainer.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;';
+              // Grid inayoweka kadi zikae kushoto na kulia (Responsive Cards Grid)
+              const cardsGrid = document.createElement('div');
+              cardsGrid.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;';
 
               dateTasks.forEach(task => {
                 const taskCard = document.createElement('div');
                 taskCard.className = 'card';
-                taskCard.style.cssText = 'margin-bottom: 0; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; flexDirection: column; justify-content: space-between;';
+                taskCard.style.cssText = 'background: #fff; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-between;';
 
                 taskCard.innerHTML = `
                   <div>
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                      <strong>${task.title}</strong>
-                      <span style="font-size: 0.75rem; background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-weight: 600;">Mood: ${task.mood || 'Happy'}</span>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                      <strong style="font-size: 1.1rem; color: #0f172a;">${task.title}</strong>
+                      <span style="font-size: 0.75rem; background: #fef3c7; color: #d97706; padding: 4px 8px; border-radius: 6px; font-weight: 600;">Mood: ${task.mood || 'Happy'}</span>
                     </div>
-                    <p style="font-size:0.85rem; color:#444; margin-top:8px; word-break: break-word;">${task.details || task.content || ''}</p>
+                    <p style="font-size: 0.9rem; color: #475569; line-height: 1.5; margin-bottom: 15px; word-break: break-word;">${task.details || task.content || ''}</p>
                   </div>
                   
-                  <div style="margin-top: 15px; display: flex; gap: 10px;">
-                    <button class="update-btn" style="padding: 4px 10px; background: #ffc107; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Update</button>
-                    <button class="delete-btn" style="padding: 4px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Delete</button>
+                  <div style="display: flex; gap: 10px; border-top: 1px solid #f1f5f9; padding-top: 12px;">
+                    <button class="update-btn" style="flex: 1; padding: 8px; background: #f59e0b; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem;">Update</button>
+                    <button class="delete-btn" style="flex: 1; padding: 8px; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem;">Delete</button>
                   </div>
                 `;
 
@@ -442,12 +453,14 @@ document.addEventListener('DOMContentLoaded', () => {
                   deleteDiary(task._id);
                 });
 
-                cardsContainer.appendChild(taskCard);
+                cardsGrid.appendChild(taskCard);
               });
 
-              dateSection.appendChild(cardsContainer);
-              targetColumn.appendChild(dateSection);
+              dateSection.appendChild(cardsGrid);
+              containerArea.appendChild(dateSection);
             });
+          } else {
+            containerArea.innerHTML = '<p style="text-align:center; color:#64748b; padding: 40px;">No diary entries found. Create one!</p>';
           }
         }
       } catch (error) {
