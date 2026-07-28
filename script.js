@@ -457,7 +457,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 // ==========================================================================
-  // 6. FETCH & DISPLAY TASKS (SORTED OR FILTERED BY DATE)
+  // 6. FETCH & DISPLAY TASKS (GROUPED BY DATE SECTIONS)
   // ==========================================================================
   const taskGrid = document.querySelector('.grid-dashboard');
   if (taskGrid && window.location.pathname.includes('tasks.html')) {
@@ -478,41 +478,65 @@ document.addEventListener('DOMContentLoaded', () => {
           if (targetColumn && tasks.length > 0) {
             targetColumn.innerHTML = ''; 
 
-            // Kupanga tasks kuanzia tarehe ya karibuni zaidi kwenda nyuma (Latest first)
+            // Kupanga tasks kuanzia tarehe ya karibuni kwenda ya zamani
             tasks.sort((a, b) => new Date(b.date) - new Date(a.date));
 
+            // Kuzigawanya tasks kimakundi kulingana na tarehe (Group by Date)
+            const groupedTasks = {};
             tasks.forEach(task => {
-              const taskCard = document.createElement('div');
-              taskCard.className = 'card';
-              taskCard.style.marginBottom = '12px';
-              taskCard.style.padding = '15px';
-              taskCard.style.border = '1px solid #ddd';
-              taskCard.style.borderRadius = '8px';
-
-              taskCard.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                  <strong>${task.title}</strong>
-                  <span style="font-size: 0.75rem; background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-weight: 600;">📅 ${task.date || 'No Date'}</span>
-                </div>
-                <p style="font-size:0.8rem; color:var(--text-muted); margin-top:6px;">Mood: ${task.mood || 'Happy'}</p>
-                <p style="font-size:0.85rem; color:#444; margin-top:6px;">${task.details || task.content || ''}</p>
-                
-                <div style="margin-top: 10px; display: flex; gap: 10px;">
-                  <button class="update-btn" style="padding: 5px 10px; background: #ffc107; border: none; border-radius: 4px; cursor: pointer;">Update</button>
-                  <button class="delete-btn" style="padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Delete</button>
-                </div>
-              `;
-
-              taskCard.querySelector('.update-btn').addEventListener('click', () => {
-                editDiary(task._id, task.title, task.date, task.mood, task.details || task.content || '');
-              });
-
-              taskCard.querySelector('.delete-btn').addEventListener('click', () => {
-                deleteDiary(task._id);
-              });
-
-              targetColumn.appendChild(taskCard);
+              // Tumia tarehe au weka 'No Date' kama haipo
+              const taskDate = task.date ? task.date.split('T')[0] : 'No Date';
+              if (!groupedTasks[taskDate]) {
+                groupedTasks[taskDate] = [];
+              }
+              groupedTasks[taskDate].push(task);
             });
+
+            // Kuzunguka kwenye kila kundi la tarehe na kutengeneza muundo wa section
+            for (const [dateStr, dateTasks] of Object.entries(groupedTasks)) {
+              
+              // Kutengeneza kichwa cha kundi la tarehe (Date Section Container)
+              const dateSection = document.createElement('div');
+              dateSection.style.marginBottom = '20px';
+
+              // Lebo ya tarehe (Date Header Label)
+              const dateHeader = document.createElement('div');
+              dateHeader.style.cssText = 'font-weight: bold; font-size: 0.95rem; margin-bottom: 8px; color: #333; background: #f1f5f9; padding: 8px 12px; border-radius: 6px;';
+              dateHeader.textContent = `📅 ${dateStr}`;
+              dateSection.appendChild(dateHeader);
+
+              // Kuweka kadi za diary za siku hiyo husika chini ya lebo hiyo
+              dateTasks.forEach(task => {
+                const taskCard = document.createElement('div');
+                taskCard.className = 'card';
+                taskCard.style.cssText = 'marginBottom: 10px; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05);';
+
+                taskCard.innerHTML = `
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <strong>${task.title}</strong>
+                    <span style="font-size: 0.75rem; background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-weight: 600;">Mood: ${task.mood || 'Happy'}</span>
+                  </div>
+                  <p style="font-size:0.85rem; color:#444; margin-top:8px;">${task.details || task.content || ''}</p>
+                  
+                  <div style="margin-top: 10px; display: flex; gap: 10px;">
+                    <button class="update-btn" style="padding: 4px 10px; background: #ffc107; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Update</button>
+                    <button class="delete-btn" style="padding: 4px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Delete</button>
+                  </div>
+                `;
+
+                taskCard.querySelector('.update-btn').addEventListener('click', () => {
+                  editDiary(task._id, task.title, task.date, task.mood, task.details || task.content || '');
+                });
+
+                taskCard.querySelector('.delete-btn').addEventListener('click', () => {
+                  deleteDiary(task._id);
+                });
+
+                dateSection.appendChild(taskCard);
+              });
+
+              targetColumn.appendChild(dateSection);
+            }
           }
         }
       } catch (error) {
