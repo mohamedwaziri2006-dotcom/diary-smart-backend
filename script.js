@@ -504,7 +504,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================================================
-  // 8. GOALS TRACKER LOGIC (CARD FORM LAYOUT LIKE DIARY.HTML)
+  // 8. GOALS TRACKER LOGIC (STATIC FORM IN HTML + DYNAMIC LIST)
   // ==========================================================================
   if (window.location.pathname.includes('goals.html')) {
     
@@ -616,99 +616,73 @@ document.addEventListener('DOMContentLoaded', () => {
 
           goals.sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt));
 
-          const groupsMap = new Map();
           goals.forEach(goal => {
-            const rawDate = goal.date || goal.createdAt;
-            const goalDate = rawDate ? rawDate.split('T')[0] : 'No Date';
-            if (!groupsMap.has(goalDate)) {
-              groupsMap.set(goalDate, []);
-            }
-            groupsMap.get(goalDate).push(goal);
-          });
+            const goalCard = document.createElement('div');
+            goalCard.className = 'card';
+            goalCard.style.cssText = `margin-bottom: 12px; padding: 15px; border: 1px solid #e2e8f0; border-radius: 10px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: flex-start; ${goal.completed ? 'opacity: 0.6; background: #f8fafc;' : ''}`;
 
-          groupsMap.forEach((dateGoals, dateStr) => {
-            const dateSection = document.createElement('div');
-            dateSection.style.marginBottom = '20px';
-
-            const dateHeader = document.createElement('div');
-            dateHeader.style.cssText = 'font-weight: bold; font-size: 0.95rem; margin-bottom: 8px; color: #333; background: #f1f5f9; padding: 8px 12px; border-radius: 6px;';
-            
-            let displayDateText = dateStr;
-            const todayStr = new Date().toISOString().split('T')[0];
-            if (dateStr === todayStr) {
-              displayDateText = `Today - ${dateStr}`;
-            }
-
-            dateHeader.textContent = `📅 ${displayDateText}`;
-            dateSection.appendChild(dateHeader);
-
-            dateGoals.forEach(goal => {
-              const goalCard = document.createElement('div');
-              goalCard.className = 'card';
-              goalCard.style.cssText = `margin-bottom: 10px; padding: 15px; border: 1px solid #e2e8f0; border-radius: 10px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: flex-start; ${goal.completed ? 'opacity: 0.6; background: #f8fafc;' : ''}`;
-
-              goalCard.innerHTML = `
-                <div style="display: flex; align-items: flex-start; gap: 12px; flex: 1;">
-                  <input type="checkbox" class="complete-checkbox" ${goal.completed ? 'checked' : ''} style="width: 20px; height: 20px; cursor: pointer; margin-top: 3px;">
-                  <div style="flex: 1;">
-                    <h4 style="margin: 0 0 5px 0; font-size: 1rem; ${goal.completed ? 'text-decoration: line-through; color: #888;' : 'color: #1e293b;'}">${goal.title || goal.goalText}</h4>
-                    ${goal.details ? `<p style="margin: 0 0 5px 0; font-size: 0.85rem; color: #475569;">${goal.details}</p>` : ''}
-                    <span style="font-size: 0.75rem; color: #64748b;">Target Date: ${goal.date || 'Today'}</span>
-                  </div>
+            goalCard.innerHTML = `
+              <div style="display: flex; align-items: flex-start; gap: 12px; flex: 1;">
+                <input type="checkbox" class="complete-checkbox" ${goal.completed ? 'checked' : ''} style="width: 20px; height: 20px; cursor: pointer; margin-top: 3px;">
+                <div style="flex: 1;">
+                  <h4 style="margin: 0 0 4px 0; font-size: 1rem; ${goal.completed ? 'text-decoration: line-through; color: #888;' : 'color: #1e293b;'}">${goal.title || goal.goalText}</h4>
+                  ${goal.details ? `<p style="margin: 0 0 6px 0; font-size: 0.85rem; color: #475569; word-break: break-word;">${goal.details}</p>` : ''}
+                  <span style="font-size: 0.75rem; color: #64748b;">Target: ${goal.date ? goal.date.split('T')[0] : 'Today'}</span>
                 </div>
-                <div style="display: flex; gap: 8px;">
-                  <button class="update-goal-btn" style="padding: 6px 12px; background: #f59e0b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600;">Edit</button>
-                  <button class="delete-goal-btn" style="padding: 6px 12px; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600;">Delete</button>
-                </div>
-              `;
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <button class="update-goal-btn" style="padding: 6px 12px; background: #f59e0b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600;">Edit</button>
+                <button class="delete-goal-btn" style="padding: 6px 12px; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600;">Delete</button>
+              </div>
+            `;
 
-              const checkbox = goalCard.querySelector('.complete-checkbox');
-              checkbox.addEventListener('change', async () => {
-                try {
-                  await fetch(`${API_BASE_URL}/api/goals/update/${goal._id}`, {
-                    method: 'PUT',
-                    headers: {
-                      'Content-Type': 'application/json',
-                      'Authorization': 'Bearer ' + (localStorage.getItem('token') || '')
-                    },
-                    body: JSON.stringify({ completed: checkbox.checked })
-                  });
-                  fetchGoals();
-                } catch (err) {
-                  console.error('Error updating status:', err);
-                }
-              });
-
-              goalCard.querySelector('.delete-goal-btn').addEventListener('click', async () => {
-                try {
-                  const res = await fetch(`${API_BASE_URL}/api/goals/delete/${goal._id}`, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('token') || '') }
-                  });
-                  if (res.ok) fetchGoals();
-                } catch (err) {
-                  console.error('Delete Goal Error:', err);
-                }
-              });
-
-              goalCard.querySelector('.update-goal-btn').addEventListener('click', () => {
-                editGoalIdField.value = goal._id;
-                goalTitleInput.value = goal.title || goal.goalText || '';
-                goalDateInput.value = goal.date ? goal.date.split('T')[0] : todayStr;
-                goalDetailsInput.value = goal.details || '';
-                
-                goalFormHeading.textContent = 'Edit Goal.';
-                goalSubmitBtn.textContent = 'Update Goal';
-                if (goalCancelEditBtn) goalCancelEditBtn.style.display = 'inline-block';
-                
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                goalTitleInput.focus();
-              });
-
-              dateSection.appendChild(goalCard);
+            // Kitendo cha Checkbox (Tick)
+            const checkbox = goalCard.querySelector('.complete-checkbox');
+            checkbox.addEventListener('change', async () => {
+              try {
+                await fetch(`${API_BASE_URL}/api/goals/update/${goal._id}`, {
+                  method: 'PUT',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + (localStorage.getItem('token') || '')
+                  },
+                  body: JSON.stringify({ completed: checkbox.checked })
+                });
+                fetchGoals();
+              } catch (err) {
+                console.error('Error updating status:', err);
+              }
             });
 
-            targetArea.appendChild(dateSection);
+            // Kitendo cha Delete
+            goalCard.querySelector('.delete-goal-btn').addEventListener('click', async () => {
+              try {
+                const res = await fetch(`${API_BASE_URL}/api/goals/delete/${goal._id}`, {
+                  method: 'DELETE',
+                  headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('token') || '') }
+                });
+                if (res.ok) fetchGoals();
+              } catch (err) {
+                console.error('Delete Goal Error:', err);
+              }
+            });
+
+            // Kitendo cha Edit / Update
+            goalCard.querySelector('.update-goal-btn').addEventListener('click', () => {
+              editGoalIdField.value = goal._id;
+              goalTitleInput.value = goal.title || goal.goalText || '';
+              goalDateInput.value = goal.date ? goal.date.split('T')[0] : todayFormatted;
+              goalDetailsInput.value = goal.details || '';
+              
+              goalFormHeading.textContent = 'Edit Goal.';
+              goalSubmitBtn.textContent = 'Update Goal';
+              if (goalCancelEditBtn) goalCancelEditBtn.style.display = 'inline-block';
+              
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+              goalTitleInput.focus();
+            });
+
+            targetArea.appendChild(goalCard);
           });
         }
       } catch (error) {
