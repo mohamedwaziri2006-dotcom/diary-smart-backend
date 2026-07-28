@@ -457,7 +457,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 // ==========================================================================
-  // 6. FETCH & DISPLAY TASKS (GROUPED BY DATE SECTIONS)
+  // 6. FETCH & DISPLAY TASKS (GROUPED & SORTED DESCENDING BY DATE)
   // ==========================================================================
   const taskGrid = document.querySelector('.grid-dashboard');
   if (taskGrid && window.location.pathname.includes('tasks.html')) {
@@ -478,13 +478,12 @@ document.addEventListener('DOMContentLoaded', () => {
           if (targetColumn && tasks.length > 0) {
             targetColumn.innerHTML = ''; 
 
-            // Kupanga tasks kuanzia tarehe ya karibuni kwenda ya zamani
+            // 1. Kupanga entries zote kuanzia tarehe ya hivi karibuni (Descending Order)
             tasks.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-            // Kuzigawanya tasks kimakundi kulingana na tarehe (Group by Date)
+            // 2. Kuzigawanya kimakundi kulingana na tarehe huku zikiwa bado zimekaa ki-descending
             const groupedTasks = {};
             tasks.forEach(task => {
-              // Tumia tarehe au weka 'No Date' kama haipo
               const taskDate = task.date ? task.date.split('T')[0] : 'No Date';
               if (!groupedTasks[taskDate]) {
                 groupedTasks[taskDate] = [];
@@ -492,24 +491,31 @@ document.addEventListener('DOMContentLoaded', () => {
               groupedTasks[taskDate].push(task);
             });
 
-            // Kuzunguka kwenye kila kundi la tarehe na kutengeneza muundo wa section
+            // 3. Kuchora makundi hayo kwenye ukurasa (Tarehe ya leo/karibuni itakuja juu kabisa)
             for (const [dateStr, dateTasks] of Object.entries(groupedTasks)) {
               
-              // Kutengeneza kichwa cha kundi la tarehe (Date Section Container)
               const dateSection = document.createElement('div');
               dateSection.style.marginBottom = '20px';
 
-              // Lebo ya tarehe (Date Header Label)
+              // Lebo ya tarehe kwa juu ya kundi
               const dateHeader = document.createElement('div');
               dateHeader.style.cssText = 'font-weight: bold; font-size: 0.95rem; margin-bottom: 8px; color: #333; background: #f1f5f9; padding: 8px 12px; border-radius: 6px;';
-              dateHeader.textContent = `📅 ${dateStr}`;
+              
+              // Unaweza kuweka maandishi maalum kama ni ya leo
+              let displayDateText = dateStr;
+              const todayStr = new Date().toISOString().split('T')[0];
+              if (dateStr === todayStr) {
+                displayDateText = `Today - ${dateStr}`;
+              }
+
+              dateHeader.textContent = `📅 ${displayDateText}`;
               dateSection.appendChild(dateHeader);
 
-              // Kuweka kadi za diary za siku hiyo husika chini ya lebo hiyo
+              // Kuweka kadi za diary chini ya tarehe husika
               dateTasks.forEach(task => {
                 const taskCard = document.createElement('div');
                 taskCard.className = 'card';
-                taskCard.style.cssText = 'marginBottom: 10px; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05);';
+                taskCard.style.cssText = 'margin-bottom: 10px; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05);';
 
                 taskCard.innerHTML = `
                   <div style="display: flex; justify-content: space-between; align-items: center;">
