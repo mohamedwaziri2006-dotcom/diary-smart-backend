@@ -381,10 +381,8 @@ document.addEventListener('DOMContentLoaded', () => {
           if (targetColumn && tasks.length > 0) {
             targetColumn.innerHTML = ''; 
 
-            // 1. Panga entries zote kuanzia tarehe ya hivi karibuni kwenda nyuma (Descending)
             tasks.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-            // 2. Tumia Map ili kulinda mtiririko wa tarehe jinsi ulivyopangwa
             const groupsMap = new Map();
             
             tasks.forEach(task => {
@@ -395,12 +393,10 @@ document.addEventListener('DOMContentLoaded', () => {
               groupsMap.get(taskDate).push(task);
             });
 
-            // 3. Kuchora makundi kwenye ukurasa kwa kufuata mpangilio wa Map
             groupsMap.forEach((dateTasks, dateStr) => {
               const dateSection = document.createElement('div');
               dateSection.style.marginBottom = '20px';
 
-              // Lebo ya tarehe
               const dateHeader = document.createElement('div');
               dateHeader.style.cssText = 'font-weight: bold; font-size: 0.95rem; margin-bottom: 8px; color: #333; background: #f1f5f9; padding: 8px 12px; border-radius: 6px;';
               
@@ -413,7 +409,6 @@ document.addEventListener('DOMContentLoaded', () => {
               dateHeader.textContent = `📅 ${displayDateText}`;
               dateSection.appendChild(dateHeader);
 
-              // Kuweka kadi za diary chini ya tarehe husika
               dateTasks.forEach(task => {
                 const taskCard = document.createElement('div');
                 taskCard.className = 'card';
@@ -541,10 +536,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (addGoalTriggerBtn) {
       addGoalTriggerBtn.addEventListener('click', (e) => {
         e.preventDefault();
-        openGoalModal('Add New Goal', '', async (newTitle) => {
+        openGoalModal('Add New Goal', '', async (newTitle, okBtn) => {
           if (newTitle && newTitle.trim() !== '') {
             const userId = localStorage.getItem('userId');
             const currentDate = new Date().toISOString().split('T')[0];
+
+            let originalOkText = 'OK';
+            if (okBtn) {
+              originalOkText = okBtn.textContent;
+              okBtn.disabled = true;
+              okBtn.textContent = 'Adding...';
+            }
 
             try {
               const response = await fetch(`${API_BASE_URL}/api/goals/add`, {
@@ -557,7 +559,8 @@ document.addEventListener('DOMContentLoaded', () => {
               });
 
               if (response.ok) {
-                fetchGoals();
+                customModal.style.display = 'none';
+                await fetchGoals();
               } else {
                 const errData = await response.json();
                 triggerAlert('error', 'Failed', errData.message || 'Failed to add goal.');
@@ -565,6 +568,11 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
               console.error('Add Goal Error:', error);
               triggerAlert('error', 'Error', 'Network connection error.');
+            } finally {
+              if (okBtn) {
+                okBtn.disabled = false;
+                okBtn.textContent = originalOkText;
+              }
             }
           }
         });
@@ -673,7 +681,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         },
                         body: JSON.stringify({ title: newTitle.trim() })
                       });
-                      if (res.ok) fetchGoals();
+                      if (res.ok) {
+                        customModal.style.display = 'none';
+                        fetchGoals();
+                      }
                     } catch (err) {
                       console.error('Update Goal Error:', err);
                     }
@@ -709,8 +720,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       newOkBtn.addEventListener('click', () => {
         const val = inputField.value;
-        customModal.style.display = 'none';
-        if (callback) callback(val);
+        if (callback) callback(val, newOkBtn);
       });
 
       newCancelBtn.addEventListener('click', () => {
