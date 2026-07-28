@@ -14,8 +14,8 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// Hii inaiambia Server ikubali kusoma mafaili ya Frontend (HTML, CSS, JS) moja kwa moja
-app.use(express.static(__dirname));
+// Hii inaiambia Server ikubali kusoma mafaili yote ya Frontend (HTML, CSS, JS) kwa usahihi kupitia path kamili
+app.use(express.static(path.join(__dirname)));
 
 // Kuunganisha Database ya MongoDB Atlas
 mongoose.connect(process.env.MONGO_URI)
@@ -26,14 +26,14 @@ mongoose.connect(process.env.MONGO_URI)
 app.use('/api/auth', authRoutes);
 app.use('/api/diary', diaryRoutes);
 
-// Amri ya kusoma index.html mtu anapofungua link kuu ya tovuti
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
-
 // Test Route ya API
 app.get('/api/status', (req, res) => {
   res.send('API ya DIARY SMART ipo hewani na inafanya kazi!');
+});
+
+// Njia ya mwisho kabisa kwa ajili ya kusoma index.html na kuruhusu page zote za frontend zifunguke
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Kuendesha Server
