@@ -552,12 +552,11 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchTasks();
   }
   // ==========================================================================
-  // 8. GOALS TRACKER LOGIC (CUSTOM MODERN MODAL)
+  // 8. GOALS TRACKER LOGIC (ENGLISH MODAL UI)
   // ==========================================================================
   const goalsContainer = document.querySelector('.grid-dashboard') || document.body;
   if (window.location.pathname.includes('goals.html')) {
     
-    // 1. Kutengeneza Custom Modal ya HTML kiotomatiki isiyo na pop-ups za kivinjari
     let customModal = document.getElementById('customGoalModal');
     if (!customModal) {
       customModal = document.createElement('div');
@@ -576,9 +575,9 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
 
           <h3 id="goalModalTitle" style="margin:0 0 10px 0; font-size:1.4rem; color:#1e293b; font-weight:700;">Add New Goal</h3>
-          <p id="goalModalDesc" style="margin:0 0 20px 0; font-size:0.9rem; color:#64748b;">Weka lengo lako jipya hapa chini ili uweze kulifuatilia.</p>
+          <p id="goalModalDesc" style="margin:0 0 20px 0; font-size:0.9rem; color:#64748b;">Enter your new goal below to track your progress.</p>
           
-          <input type="text" id="modalGoalInput" placeholder="Andika lengo lako hapa..." style="width:100%; padding:12px 15px; border:1px solid #cbd5e1; border-radius:10px; font-size:0.95rem; margin-bottom:20px; outline:none; box-sizing:border-box;">
+          <input type="text" id="modalGoalInput" placeholder="Enter your goal here..." style="width:100%; padding:12px 15px; border:1px solid #cbd5e1; border-radius:10px; font-size:0.95rem; margin-bottom:20px; outline:none; box-sizing:border-box;">
           
           <div style="display:flex; gap:10px; justify-content:center;">
             <button id="modalCancelBtn" style="flex:1; padding:12px; background:#e2e8f0; color:#475569; border:none; border-radius:12px; font-weight:600; cursor:pointer;">Cancel</button>
@@ -589,7 +588,6 @@ document.addEventListener('DOMContentLoaded', () => {
       document.body.appendChild(customModal);
     }
 
-    // Eneo la kuonyesha malengo
     let targetArea = document.getElementById('goalsListArea');
     if (!targetArea) {
       targetArea = document.createElement('div');
@@ -598,7 +596,6 @@ document.addEventListener('DOMContentLoaded', () => {
       document.querySelector('main')?.appendChild(targetArea) || document.body.appendChild(targetArea);
     }
 
-    // Kitendakazi cha kuchora malengo kutoka Backend
     async function fetchGoals() {
       try {
         const response = await fetch(`${API_BASE_URL}/api/goals/my-goals`, {
@@ -613,7 +610,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (response.ok && Array.isArray(goals)) {
           targetArea.innerHTML = '';
 
-          // Panga malengo kuanzia tarehe ya hivi karibuni (Descending Order)
           goals.sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt));
 
           const groupsMap = new Map();
@@ -661,7 +657,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
               `;
 
-              // Kuweka tiki ya kukamilisha lengo
               const checkbox = goalCard.querySelector('.complete-checkbox');
               checkbox.addEventListener('change', async () => {
                 try {
@@ -679,7 +674,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
               });
 
-              // Kufuta Lengo
               goalCard.querySelector('.delete-goal-btn').addEventListener('click', async () => {
                 try {
                   const res = await fetch(`${API_BASE_URL}/api/goals/delete/${goal._id}`, {
@@ -692,7 +686,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
               });
 
-              // Kuedit Lengo kupitia Custom Modal
               goalCard.querySelector('.update-goal-btn').addEventListener('click', () => {
                 openGoalModal('Edit Goal', goal.title || goal.goalText, async (newTitle) => {
                   if (newTitle && newTitle.trim() !== '') {
@@ -724,7 +717,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // Kitendakazi cha kufungua Custom Modal yetu nzuri
     function openGoalModal(titleText, initialValue = '', callback) {
       document.getElementById('goalModalTitle').textContent = titleText;
       const inputField = document.getElementById('modalGoalInput');
@@ -735,7 +727,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const okBtn = document.getElementById('modalOkBtn');
       const cancelBtn = document.getElementById('modalCancelBtn');
 
-      // Safisha event za zamani ili zisijirudie
       const newOkBtn = okBtn.cloneNode(true);
       const newCancelBtn = cancelBtn.cloneNode(true);
       okBtn.parentNode.replaceChild(newOkBtn, okBtn);
@@ -752,7 +743,6 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    // Kitufe cha "Add Goal" kinachofungua modal yetu ya kisasa
     const addGoalBtn = document.getElementById('addGoalBtn');
     if (addGoalBtn) {
       addGoalBtn.addEventListener('click', () => {
