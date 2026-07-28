@@ -552,7 +552,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchTasks();
   }
   // ==========================================================================
-  // 8. GOALS TRACKER LOGIC (ENGLISH MODAL UI)
+  // 8. GOALS TRACKER LOGIC (100% ENGLISH MODAL)
   // ==========================================================================
   const goalsContainer = document.querySelector('.grid-dashboard') || document.body;
   if (window.location.pathname.includes('goals.html')) {
@@ -575,9 +575,9 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
 
           <h3 id="goalModalTitle" style="margin:0 0 10px 0; font-size:1.4rem; color:#1e293b; font-weight:700;">Add New Goal</h3>
-          <p id="goalModalDesc" style="margin:0 0 20px 0; font-size:0.9rem; color:#64748b;">Enter your new goal below to track your progress.</p>
+          <p id="goalModalDesc" style="margin:0 0 20px 0; font-size:0.9rem; color:#64748b;">Please enter your goal details below.</p>
           
-          <input type="text" id="modalGoalInput" placeholder="Enter your goal here..." style="width:100%; padding:12px 15px; border:1px solid #cbd5e1; border-radius:10px; font-size:0.95rem; margin-bottom:20px; outline:none; box-sizing:border-box;">
+          <input type="text" id="modalGoalInput" placeholder="Type your goal here..." style="width:100%; padding:12px 15px; border:1px solid #cbd5e1; border-radius:10px; font-size:0.95rem; margin-bottom:20px; outline:none; box-sizing:border-box;">
           
           <div style="display:flex; gap:10px; justify-content:center;">
             <button id="modalCancelBtn" style="flex:1; padding:12px; background:#e2e8f0; color:#475569; border:none; border-radius:12px; font-weight:600; cursor:pointer;">Cancel</button>
