@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
 require('dotenv').config();
 
 // Kuagiza Routes (Njia za Auth na Diary)
@@ -25,7 +26,12 @@ mongoose.connect(process.env.MONGO_URI)
 app.use('/api/auth', authRoutes);
 app.use('/api/diary', diaryRoutes);
 
-// Kama unataka kuacha test route lakini isizuie index.html, iweke kwenye kiambishi tamati tofauti au iondoe kabisa
+// Amri ya kusoma index.html mtu anapofungua link kuu ya tovuti
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// Test Route ya API
 app.get('/api/status', (req, res) => {
   res.send('API ya DIARY SMART ipo hewani na inafanya kazi!');
 });
