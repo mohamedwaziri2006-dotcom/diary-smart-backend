@@ -13,32 +13,37 @@ function triggerAlert(type, title, message, redirectUrl = null) {
   const statusIcon = document.getElementById('statusIcon');
   const alertBtn = document.getElementById('alertBtn');
 
-  if (!alertModal || !statusIcon || !alertTitle || !alertMessage) {
+  // Ikiwa modal haipo kabisa kwenye HTML ndipo itumie alert ya kawaida
+  if (!alertModal) {
     alert(`${title}: ${message}`);
     if (redirectUrl) window.location.href = redirectUrl;
     return;
   }
 
   window.alertRedirectUrl = redirectUrl;
-  statusIcon.className = 'status-icon-wrapper ' + type;
-
-  if (type === 'success') {
-    statusIcon.innerHTML = `
-      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="20 6 9 17 4 12"></polyline>
-      </svg>`;
-  } else {
-    statusIcon.innerHTML = `
-      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"></circle>
-        <line x1="12" y1="8" x2="12" y2="12"></line>
-        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-      </svg>`;
+  
+  if (statusIcon) {
+    statusIcon.className = 'status-icon-wrapper ' + type;
+    if (type === 'success') {
+      statusIcon.innerHTML = `
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>`;
+    } else {
+      statusIcon.innerHTML = `
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>`;
+    }
   }
 
-  alertTitle.textContent = title;
-  alertMessage.textContent = message;
+  if (alertTitle) alertTitle.textContent = title;
+  if (alertMessage) alertMessage.textContent = message;
+  
   alertModal.classList.add('active');
+  alertModal.style.display = 'flex'; // Kuhakikisha inaonekana moja kwa moja
 }
 
 // Global functions for Update & Delete
@@ -86,6 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (alertBtn && alertModal) {
     alertBtn.addEventListener('click', function () {
       alertModal.classList.remove('active');
+      alertModal.style.display = 'none';
       if (window.alertRedirectUrl) {
         window.location.href = window.alertRedirectUrl;
       }
@@ -382,7 +388,6 @@ document.addEventListener('DOMContentLoaded', () => {
               taskCard.style.border = '1px solid #ddd';
               taskCard.style.borderRadius = '8px';
 
-              // Tumia dataset kuhifadhi taarifa ili kuepuka changamoto za special characters/quotes kwenye onclick
               taskCard.innerHTML = `
                 <strong>${task.title}</strong>
                 <p style="font-size:0.8rem; color:var(--text-muted); margin-top:6px;">Mood: ${task.mood || 'Happy'} | Date: ${task.date || 'Today'}</p>
@@ -394,7 +399,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
               `;
 
-              // Ambatisha Event Listeners kwa usalama zaidi dhidi ya mabano na quotes
               taskCard.querySelector('.update-btn').addEventListener('click', () => {
                 editDiary(task._id, task.title, task.date, task.mood, task.details || task.content || '');
               });
