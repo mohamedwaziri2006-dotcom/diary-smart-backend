@@ -12,7 +12,6 @@ function triggerAlert(type, title, message, redirectUrl = null) {
   const alertMessage = document.getElementById('alertMessage');
   const statusIcon = document.getElementById('statusIcon');
 
-  // Ikiwa modal haipo kabisa kwenye HTML, onyo litatolewa kwenye Console badala ya Browser Alert
   if (!alertModal) {
     console.warn("Alert modal element not found in HTML!");
     if (redirectUrl) window.location.href = redirectUrl;
@@ -45,7 +44,7 @@ function triggerAlert(type, title, message, redirectUrl = null) {
   alertModal.style.display = 'flex';
 }
 
-// Global functions for Update & Delete
+// Global functions for Update & Delete (Diary)
 async function deleteDiary(id) {
   try {
     const response = await fetch(`${API_BASE_URL}/api/diary/delete/${id}`, {
@@ -505,94 +504,144 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================================================
-  // 8. GOALS TRACKER LOGIC (100% ENGLISH MODAL)
+  // 8. GOALS TRACKER LOGIC (CARD FORM LAYOUT LIKE DIARY.HTML)
   // ==========================================================================
   if (window.location.pathname.includes('goals.html')) {
     
-    let customModal = document.getElementById('customGoalModal');
-    if (!customModal) {
-      customModal = document.createElement('div');
-      customModal.id = 'customGoalModal';
-      customModal.style.cssText = 'display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center;';
+    // Tengeneza Form kubwa ya Goal inayofanana na diary.html juu ya ukurasa
+    let mainContainer = document.querySelector('main') || document.body;
+    
+    let goalFormContainer = document.getElementById('dynamicGoalFormContainer');
+    if (!goalFormContainer) {
+      goalFormContainer = document.createElement('div');
+      goalFormContainer.id = 'dynamicGoalFormContainer';
+      goalFormContainer.style.cssText = 'max-width: 750px; margin: 30px auto; padding: 0 20px; font-family: "Outfit", sans-serif;';
       
-      customModal.innerHTML = `
-        <div style="background:#fff; width:90%; max-width:400px; padding:30px; border-radius:20px; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.15); font-family:'Outfit', sans-serif; position:relative;">
-          
-          <div style="width:60px; height:60px; background:#fff7ed; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 15px auto;">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <circle cx="12" cy="12" r="6"></circle>
-              <circle cx="12" cy="12" r="2"></circle>
-            </svg>
-          </div>
+      const todayFormatted = new Date().toISOString().split('T')[0];
 
-          <h3 id="goalModalTitle" style="margin:0 0 10px 0; font-size:1.4rem; color:#1e293b; font-weight:700;">Add New Goal</h3>
-          <p id="goalModalDesc" style="margin:0 0 20px 0; font-size:0.9rem; color:#64748b;">Please enter your goal details below.</p>
-          
-          <input type="text" id="modalGoalInput" placeholder="Type your goal here..." style="width:100%; padding:12px 15px; border:1px solid #cbd5e1; border-radius:10px; font-size:0.95rem; margin-bottom:20px; outline:none; box-sizing:border-box;">
-          
-          <div style="display:flex; gap:10px; justify-content:center;">
-            <button id="modalCancelBtn" style="flex:1; padding:12px; background:#e2e8f0; color:#475569; border:none; border-radius:12px; font-weight:600; cursor:pointer;">Cancel</button>
-            <button id="modalOkBtn" style="flex:1; padding:12px; background:#d97706; color:white; border:none; border-radius:12px; font-weight:600; cursor:pointer;">OK</button>
-          </div>
+      goalFormContainer.innerHTML = `
+        <h2 id="goalFormHeading" style="color: #1e293b; margin-bottom: 20px; font-size: 1.5rem; font-weight: 700;">Set New Goal.</h2>
+        <div style="background: #fff; padding: 30px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+          <form id="goalEntryForm">
+            <input type="hidden" id="editGoalId" value="">
+            
+            <div style="margin-bottom: 20px;">
+              <label style="display: block; font-size: 0.9rem; font-weight: 600; color: #1e293b; margin-bottom: 8px;">Goal Title</label>
+              <input type="text" id="goalTitleInput" placeholder="Enter your goal title..." required style="width: 100%; padding: 12px 15px; background: #fffdf5; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 0.95rem; outline: none; box-sizing: border-box;">
+            </div>
+
+            <div style="display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap;">
+              <div style="flex: 1; min-width: 250px;">
+                <label style="display: block; font-size: 0.9rem; font-weight: 600; color: #1e293b; margin-bottom: 8px;">Target Date</label>
+                <input type="date" id="goalDateInput" value="${todayFormatted}" style="width: 100%; padding: 12px 15px; background: #fffdf5; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 0.95rem; outline: none; box-sizing: border-box;">
+              </div>
+            </div>
+
+            <div style="margin-bottom: 25px;">
+              <label style="display: block; font-size: 0.9rem; font-weight: 600; color: #1e293b; margin-bottom: 8px;">Goal Details / Notes</label>
+              <textarea id="goalDetailsInput" rows="4" placeholder="Write more details about your goal..." style="width: 100%; padding: 12px 15px; background: #fffdf5; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 0.95rem; outline: none; resize: vertical; box-sizing: border-box;"></textarea>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+              <button type="submit" id="goalSubmitBtn" style="padding: 12px 25px; background: #d97706; color: white; border: none; border-radius: 10px; font-weight: 600; font-size: 0.95rem; cursor: pointer;">Save Goal</button>
+              <button type="button" id="goalCancelEditBtn" style="display: none; padding: 12px 25px; background: #cbd5e1; color: #334155; border: none; border-radius: 10px; font-weight: 600; font-size: 0.95rem; cursor: pointer;">Cancel</button>
+            </div>
+          </form>
+        </div>
+        
+        <div style="margin-top: 40px;">
+          <h3 style="color: #1e293b; font-size: 1.2rem; margin-bottom: 15px;">Your Saved Goals</h3>
+          <div id="goalsListArea"></div>
         </div>
       `;
-      document.body.appendChild(customModal);
+
+      if (mainContainer.firstChild) {
+        mainContainer.insertBefore(goalFormContainer, mainContainer.firstChild);
+      } else {
+        mainContainer.appendChild(goalFormContainer);
+      }
     }
 
-    let targetArea = document.getElementById('goalsListArea');
-    if (!targetArea) {
-      targetArea = document.createElement('div');
-      targetArea.id = 'goalsListArea';
-      targetArea.style.cssText = 'max-width: 800px; margin: 20px auto; padding: 0 20px;';
-      document.querySelector('main')?.appendChild(targetArea) || document.body.appendChild(targetArea);
-    }
+    const goalEntryForm = document.getElementById('goalEntryForm');
+    const goalTitleInput = document.getElementById('goalTitleInput');
+    const goalDateInput = document.getElementById('goalDateInput');
+    const goalDetailsInput = document.getElementById('goalDetailsInput');
+    const editGoalIdField = document.getElementById('editGoalId');
+    const goalSubmitBtn = document.getElementById('goalSubmitBtn');
+    const goalCancelEditBtn = document.getElementById('goalCancelEditBtn');
+    const goalFormHeading = document.getElementById('goalFormHeading');
+    const targetArea = document.getElementById('goalsListArea');
 
-    const addGoalTriggerBtn = document.getElementById('addGoalBtn');
-    
-    if (addGoalTriggerBtn) {
-      addGoalTriggerBtn.addEventListener('click', (e) => {
+    // Hushughulikia Submit ya Fomu (Add au Update Goal)
+    if (goalEntryForm) {
+      goalEntryForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        openGoalModal('Add New Goal', '', async (newTitle, okBtn) => {
-          if (newTitle && newTitle.trim() !== '') {
-            const userId = localStorage.getItem('userId');
-            const currentDate = new Date().toISOString().split('T')[0];
 
-            let originalOkText = 'OK';
-            if (okBtn) {
-              originalOkText = okBtn.textContent;
-              okBtn.disabled = true;
-              okBtn.textContent = 'Adding...';
-            }
+        const title = goalTitleInput.value.trim();
+        const date = goalDateInput.value;
+        const details = goalDetailsInput.value.trim();
+        const editId = editGoalIdField.value;
+        const userId = localStorage.getItem('userId');
 
-            try {
-              const response = await fetch(`${API_BASE_URL}/api/goals/add`, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': 'Bearer ' + (localStorage.getItem('token') || '')
-                },
-                body: JSON.stringify({ userId, title: newTitle.trim(), date: currentDate, completed: false })
-              });
+        if (!userId) {
+          showAlert('error', 'Session Expired!', 'Please login to save goals.', 'index.html');
+          return;
+        }
 
-              if (response.ok) {
-                customModal.style.display = 'none';
-                await fetchGoals();
-              } else {
-                const errData = await response.json();
-                triggerAlert('error', 'Failed', errData.message || 'Failed to add goal.');
-              }
-            } catch (error) {
-              console.error('Add Goal Error:', error);
-              triggerAlert('error', 'Error', 'Network connection error.');
-            } finally {
-              if (okBtn) {
-                okBtn.disabled = false;
-                okBtn.textContent = originalOkText;
-              }
-            }
+        if (!title) {
+          showAlert('error', 'Validation Error', 'Please enter a goal title.');
+          return;
+        }
+
+        let originalBtnText = goalSubmitBtn.textContent;
+        goalSubmitBtn.disabled = true;
+        goalSubmitBtn.textContent = 'Saving...';
+
+        try {
+          const url = editId ? `${API_BASE_URL}/api/goals/update/${editId}` : `${API_BASE_URL}/api/goals/add`;
+          const method = editId ? 'PUT' : 'POST';
+
+          const response = await fetch(url, {
+            method: method,
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + (localStorage.getItem('token') || '')
+            },
+            body: JSON.stringify({ userId, title, date, details })
+          });
+
+          if (response.ok) {
+            // Safisha fomu
+            goalEntryForm.reset();
+            editGoalIdField.value = '';
+            goalSubmitBtn.textContent = 'Save Goal';
+            goalFormHeading.textContent = 'Set New Goal.';
+            goalCancelEditBtn.style.display = 'none';
+            goalDateInput.value = new Date().toISOString().split('T')[0];
+
+            fetchGoals();
+          } else {
+            const errData = await response.json();
+            showAlert('error', 'Failed', errData.message || 'Failed to save goal.');
           }
-        });
+        } catch (error) {
+          console.error('Goal Save Error:', error);
+          showAlert('error', 'Error', 'Network connection error.');
+        } finally {
+          goalSubmitBtn.disabled = false;
+          goalSubmitBtn.textContent = originalBtnText;
+        }
+      });
+    }
+
+    if (goalCancelEditBtn) {
+      goalCancelEditBtn.addEventListener('click', () => {
+        goalEntryForm.reset();
+        editGoalIdField.value = '';
+        goalSubmitBtn.textContent = 'Save Goal';
+        goalFormHeading.textContent = 'Set New Goal.';
+        goalCancelEditBtn.style.display = 'none';
+        goalDateInput.value = new Date().toISOString().split('T')[0];
       });
     }
 
@@ -609,6 +658,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (response.ok && Array.isArray(goals)) {
           targetArea.innerHTML = '';
+
+          if (goals.length === 0) {
+            targetArea.innerHTML = '<p style="color:#64748b; text-align:center; padding: 20px;">No goals found. Set one above!</p>';
+            return;
+          }
 
           goals.sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt));
 
@@ -641,19 +695,20 @@ document.addEventListener('DOMContentLoaded', () => {
             dateGoals.forEach(goal => {
               const goalCard = document.createElement('div');
               goalCard.className = 'card';
-              goalCard.style.cssText = `margin-bottom: 10px; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; ${goal.completed ? 'opacity: 0.6; background: #f8fafc;' : ''}`;
+              goalCard.style.cssText = `margin-bottom: 10px; padding: 15px; border: 1px solid #e2e8f0; border-radius: 10px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: flex-start; ${goal.completed ? 'opacity: 0.6; background: #f8fafc;' : ''}`;
 
               goalCard.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
-                  <input type="checkbox" class="complete-checkbox" ${goal.completed ? 'checked' : ''} style="width: 20px; height: 20px; cursor: pointer;">
-                  <div>
-                    <h4 style="margin: 0; font-size: 1rem; ${goal.completed ? 'text-decoration: line-through; color: #888;' : 'color: #1e293b;'}">${goal.title || goal.goalText}</h4>
-                    <span style="font-size: 0.75rem; color: #64748b;">Saved on: ${goal.date || 'Today'}</span>
+                <div style="display: flex; align-items: flex-start; gap: 12px; flex: 1;">
+                  <input type="checkbox" class="complete-checkbox" ${goal.completed ? 'checked' : ''} style="width: 20px; height: 20px; cursor: pointer; margin-top: 3px;">
+                  <div style="flex: 1;">
+                    <h4 style="margin: 0 0 5px 0; font-size: 1rem; ${goal.completed ? 'text-decoration: line-through; color: #888;' : 'color: #1e293b;'}">${goal.title || goal.goalText}</h4>
+                    ${goal.details ? `<p style="margin: 0 0 5px 0; font-size: 0.85rem; color: #475569;">${goal.details}</p>` : ''}
+                    <span style="font-size: 0.75rem; color: #64748b;">Target Date: ${goal.date || 'Today'}</span>
                   </div>
                 </div>
                 <div style="display: flex; gap: 8px;">
-                  <button class="update-goal-btn" style="padding: 4px 8px; background: #ffc107; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Edit</button>
-                  <button class="delete-goal-btn" style="padding: 4px 8px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Delete</button>
+                  <button class="update-goal-btn" style="padding: 6px 12px; background: #f59e0b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600;">Edit</button>
+                  <button class="delete-goal-btn" style="padding: 6px 12px; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600;">Delete</button>
                 </div>
               `;
 
@@ -687,26 +742,18 @@ document.addEventListener('DOMContentLoaded', () => {
               });
 
               goalCard.querySelector('.update-goal-btn').addEventListener('click', () => {
-                openGoalModal('Edit Goal', goal.title || goal.goalText, async (newTitle) => {
-                  if (newTitle && newTitle.trim() !== '') {
-                    try {
-                      const res = await fetch(`${API_BASE_URL}/api/goals/update/${goal._id}`, {
-                        method: 'PUT',
-                        headers: {
-                          'Content-Type': 'application/json',
-                          'Authorization': 'Bearer ' + (localStorage.getItem('token') || '')
-                        },
-                        body: JSON.stringify({ title: newTitle.trim() })
-                      });
-                      if (res.ok) {
-                        customModal.style.display = 'none';
-                        fetchGoals();
-                      }
-                    } catch (err) {
-                      console.error('Update Goal Error:', err);
-                    }
-                  }
-                });
+                // Jaza taarifa kwenye fomu iliyo juu ili mtumiaji aweze kuhariri kwa urahisi
+                editGoalIdField.value = goal._id;
+                goalTitleInput.value = goal.title || goal.goalText || '';
+                goalDateInput.value = goal.date ? goal.date.split('T')[0] : todayStr;
+                goalDetailsInput.value = goal.details || '';
+                
+                goalFormHeading.textContent = 'Edit Goal.';
+                goalSubmitBtn.textContent = 'Update Goal';
+                goalCancelEditBtn.style.display = 'inline-block';
+                
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                goalTitleInput.focus();
               });
 
               dateSection.appendChild(goalCard);
@@ -718,36 +765,6 @@ document.addEventListener('DOMContentLoaded', () => {
       } catch (error) {
         console.error('Error fetching goals:', error);
       }
-    }
-
-    function openGoalModal(titleText, initialValue = '', callback) {
-      document.getElementById('goalModalTitle').textContent = titleText;
-      const inputField = document.getElementById('modalGoalInput');
-      inputField.value = initialValue;
-      customModal.style.display = 'flex';
-      inputField.focus();
-
-      const okBtn = document.getElementById('modalOkBtn');
-      const cancelBtn = document.getElementById('modalCancelBtn');
-
-      const newOkBtn = okBtn.cloneNode(true);
-      const newCancelBtn = cancelBtn.cloneNode(true);
-      okBtn.parentNode.replaceChild(newOkBtn, okBtn);
-      cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
-
-      newOkBtn.addEventListener('click', () => {
-        callback(inputField.value, newOkBtn);
-      });
-
-      newCancelBtn.addEventListener('click', () => {
-        customModal.style.display = 'none';
-      });
-
-      inputField.onkeydown = (e) => {
-        if (e.key === 'Enter') {
-          newOkBtn.click();
-        }
-      };
     }
 
     fetchGoals();
