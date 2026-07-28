@@ -13,7 +13,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// Hii inaiambia Server ikubali kusoma mafaili ya Frontend (HTML, CSS, JS)
+// Hii inaiambia Server ikubali kusoma mafaili ya Frontend (HTML, CSS, JS) moja kwa moja
 app.use(express.static(__dirname));
 
 // Kuunganisha Database ya MongoDB Atlas
@@ -25,8 +25,8 @@ mongoose.connect(process.env.MONGO_URI)
 app.use('/api/auth', authRoutes);
 app.use('/api/diary', diaryRoutes);
 
-// Test Route
-app.get('/', (req, res) => {
+// Kama unataka kuacha test route lakini isizuie index.html, iweke kwenye kiambishi tamati tofauti au iondoe kabisa
+app.get('/api/status', (req, res) => {
   res.send('API ya DIARY SMART ipo hewani na inafanya kazi!');
 });
 
