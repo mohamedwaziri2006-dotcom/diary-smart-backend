@@ -360,103 +360,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================================================
-  // 6. FETCH & DISPLAY TASKS (ON TASKS PAGE WITH UPDATE & DELETE BUTTONS)
-  // ==========================================================================
-  const taskGrid = document.querySelector('.grid-dashboard');
-  if (taskGrid && window.location.pathname.includes('tasks.html')) {
-    async function fetchTasks() {
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/diary/my-entries`, {
-          method: 'GET',
-          headers: {
-            'Authorization': 'Bearer ' + (localStorage.getItem('token') || '')
-          }
-        });
-
-        const tasks = await response.json();
-
-        if (response.ok && Array.isArray(tasks)) {
-          const targetColumn = taskGrid.querySelector('.col-4');
-          
-          if (targetColumn && tasks.length > 0) {
-            targetColumn.innerHTML = ''; 
-            tasks.forEach(task => {
-              const taskCard = document.createElement('div');
-              taskCard.className = 'card';
-              taskCard.style.marginBottom = '12px';
-              taskCard.style.padding = '15px';
-              taskCard.style.border = '1px solid #ddd';
-              taskCard.style.borderRadius = '8px';
-
-              taskCard.innerHTML = `
-                <strong>${task.title}</strong>
-                <p style="font-size:0.8rem; color:var(--text-muted); margin-top:6px;">Mood: ${task.mood || 'Happy'} | Date: ${task.date || 'Today'}</p>
-                <p style="font-size:0.85rem; color:#444; margin-top:6px;">${task.details || task.content || ''}</p>
-                
-                <div style="margin-top: 10px; display: flex; gap: 10px;">
-                  <button class="update-btn" style="padding: 5px 10px; background: #ffc107; border: none; border-radius: 4px; cursor: pointer;">Update</button>
-                  <button class="delete-btn" style="padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Delete</button>
-                </div>
-              `;
-
-              taskCard.querySelector('.update-btn').addEventListener('click', () => {
-                editDiary(task._id, task.title, task.date, task.mood, task.details || task.content || '');
-              });
-
-              taskCard.querySelector('.delete-btn').addEventListener('click', () => {
-                deleteDiary(task._id);
-              });
-
-              targetColumn.appendChild(taskCard);
-            });
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching tasks:', error);
-      }
-    }
-
-    fetchTasks();
-  }
-
-  // ==========================================================================
-  // 7. PROFILE MODAL & USER INFO HANDLING
-  // ==========================================================================
-  const profileIcon = document.getElementById('profileIcon');
-  const profileModal = document.getElementById('profileModal');
-  const closeProfile = document.getElementById('closeProfile');
-  const logoutBtn = document.getElementById('logoutBtn');
-  
-  const profileUsername = document.getElementById('profileUsername');
-  const profileEmail = document.getElementById('profileEmail');
-
-  if (profileIcon && profileModal) {
-    profileIcon.addEventListener('click', () => {
-      const storedUsername = localStorage.getItem('username') || 'Guest User';
-      const storedEmail = localStorage.getItem('email') || 'No email saved';
-
-      if (profileUsername) profileUsername.textContent = storedUsername;
-      if (profileEmail) profileEmail.textContent = storedEmail;
-
-      profileModal.classList.add('active');
-    });
-  }
-
-  if (closeProfile && profileModal) {
-    closeProfile.addEventListener('click', () => {
-      profileModal.classList.remove('active');
-    });
-  }
-
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
-      localStorage.clear();
-      window.location.href = 'index.html';
-    });
-  }
-
-});
-// ==========================================================================
   // 6. FETCH & DISPLAY TASKS (STRICT DESCENDING DATE GROUPS)
   // ==========================================================================
   const taskGrid = document.querySelector('.grid-dashboard');
@@ -481,10 +384,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // 1. Panga entries zote kuanzia tarehe ya hivi karibuni kwenda nyuma (Descending)
             tasks.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-            // 2. Tumia Map / Array ili kulinda mtiririko wa tarehe jinsi ulivyopangwa
+            // 2. Tumia Map ili kulinda mtiririko wa tarehe jinsi ulivyopangwa
             const groupsMap = new Map();
             
-            tasks.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(task => {
+            tasks.forEach(task => {
               const taskDate = task.date ? task.date.split('T')[0] : 'No Date';
               if (!groupsMap.has(taskDate)) {
                 groupsMap.set(taskDate, []);
@@ -492,7 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
               groupsMap.get(taskDate).push(task);
             });
 
-            // 3. Kuchora makundi kwenye ukurasa kwa kufuata ule mpangilio wa Map (Descending)
+            // 3. Kuchora makundi kwenye ukurasa kwa kufuata mpangilio wa Map
             groupsMap.forEach((dateTasks, dateStr) => {
               const dateSection = document.createElement('div');
               dateSection.style.marginBottom = '20px';
@@ -551,10 +454,45 @@ document.addEventListener('DOMContentLoaded', () => {
 
     fetchTasks();
   }
+
   // ==========================================================================
+  // 7. PROFILE MODAL & USER INFO HANDLING
+  // ==========================================================================
+  const profileIcon = document.getElementById('profileIcon');
+  const profileModal = document.getElementById('profileModal');
+  const closeProfile = document.getElementById('closeProfile');
+  const logoutBtn = document.getElementById('logoutBtn');
+  
+  const profileUsername = document.getElementById('profileUsername');
+  const profileEmail = document.getElementById('profileEmail');
+
+  if (profileIcon && profileModal) {
+    profileIcon.addEventListener('click', () => {
+      const storedUsername = localStorage.getItem('username') || 'Guest User';
+      const storedEmail = localStorage.getItem('email') || 'No email saved';
+
+      if (profileUsername) profileUsername.textContent = storedUsername;
+      if (profileEmail) profileEmail.textContent = storedEmail;
+
+      profileModal.classList.add('active');
+    });
+  }
+
+  if (closeProfile && profileModal) {
+    closeProfile.addEventListener('click', () => {
+      profileModal.classList.remove('active');
+    });
+  }
+
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      localStorage.clear();
+      window.location.href = 'index.html';
+    });
+  }
+// ==========================================================================
   // 8. GOALS TRACKER LOGIC (100% ENGLISH MODAL)
   // ==========================================================================
-  const goalsContainer = document.querySelector('.grid-dashboard') || document.body;
   if (window.location.pathname.includes('goals.html')) {
     
     let customModal = document.getElementById('customGoalModal');
@@ -594,6 +532,43 @@ document.addEventListener('DOMContentLoaded', () => {
       targetArea.id = 'goalsListArea';
       targetArea.style.cssText = 'max-width: 800px; margin: 20px auto; padding: 0 20px;';
       document.querySelector('main')?.appendChild(targetArea) || document.body.appendChild(targetArea);
+    }
+
+    // Kuunganisha kitufe cha "Add Goal" kilichopo kwenye HTML ya ukurasa wako
+    const addGoalTriggerBtn = document.querySelector('.add-goal-btn') || document.querySelector('button'); 
+    // Kama una ID maalum kwenye kitufe chako cha Add Goal (mfano id="addGoalBtn"), badilisha hapo juu iwe: document.getElementById('addGoalBtn')
+    
+    if (addGoalTriggerBtn) {
+      addGoalTriggerBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        openGoalModal('Add New Goal', '', async (newTitle) => {
+          if (newTitle && newTitle.trim() !== '') {
+            const userId = localStorage.getItem('userId');
+            const currentDate = new Date().toISOString().split('T')[0];
+
+            try {
+              const response = await fetch(`${API_BASE_URL}/api/goals/add`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': 'Bearer ' + (localStorage.getItem('token') || '')
+                },
+                body: JSON.stringify({ userId, title: newTitle.trim(), date: currentDate, completed: false })
+              });
+
+              if (response.ok) {
+                fetchGoals();
+              } else {
+                const errData = await response.json();
+                triggerAlert('error', 'Failed', errData.message || 'Failed to add goal.');
+              }
+            } catch (error) {
+              console.error('Add Goal Error:', error);
+              triggerAlert('error', 'Error', 'Network connection error.');
+            }
+          }
+        });
+      });
     }
 
     async function fetchGoals() {
@@ -740,37 +715,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       newCancelBtn.addEventListener('click', () => {
         customModal.style.display = 'none';
-      });
-    }
-
-    const addGoalBtn = document.getElementById('addGoalBtn');
-    if (addGoalBtn) {
-      addGoalBtn.addEventListener('click', () => {
-        openGoalModal('Add New Goal', '', async (goalTitle) => {
-          if (!goalTitle || goalTitle.trim() === '') return;
-
-          const userId = localStorage.getItem('userId');
-          const currentDate = new Date().toISOString().split('T')[0];
-
-          try {
-            const response = await fetch(`${API_BASE_URL}/api/goals/add`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + (localStorage.getItem('token') || '')
-              },
-              body: JSON.stringify({ userId, title: goalTitle.trim(), date: currentDate, completed: false })
-            });
-
-            if (response.ok) {
-              fetchGoals();
-            } else {
-              alert('Failed to add goal.');
-            }
-          } catch (err) {
-            console.error('Add Goal Error:', err);
-          }
-        });
       });
     }
 
