@@ -508,60 +508,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================================================
   if (window.location.pathname.includes('goals.html')) {
     
-    // Tengeneza Form kubwa ya Goal inayofanana na diary.html juu ya ukurasa
-    let mainContainer = document.querySelector('main') || document.body;
-    
-    let goalFormContainer = document.getElementById('dynamicGoalFormContainer');
-    if (!goalFormContainer) {
-      goalFormContainer = document.createElement('div');
-      goalFormContainer.id = 'dynamicGoalFormContainer';
-      goalFormContainer.style.cssText = 'max-width: 750px; margin: 30px auto; padding: 0 20px; font-family: "Outfit", sans-serif;';
-      
-      const todayFormatted = new Date().toISOString().split('T')[0];
-
-      goalFormContainer.innerHTML = `
-        <h2 id="goalFormHeading" style="color: #1e293b; margin-bottom: 20px; font-size: 1.5rem; font-weight: 700;">Set New Goal.</h2>
-        <div style="background: #fff; padding: 30px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
-          <form id="goalEntryForm">
-            <input type="hidden" id="editGoalId" value="">
-            
-            <div style="margin-bottom: 20px;">
-              <label style="display: block; font-size: 0.9rem; font-weight: 600; color: #1e293b; margin-bottom: 8px;">Goal Title</label>
-              <input type="text" id="goalTitleInput" placeholder="Enter your goal title..." required style="width: 100%; padding: 12px 15px; background: #fffdf5; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 0.95rem; outline: none; box-sizing: border-box;">
-            </div>
-
-            <div style="display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap;">
-              <div style="flex: 1; min-width: 250px;">
-                <label style="display: block; font-size: 0.9rem; font-weight: 600; color: #1e293b; margin-bottom: 8px;">Target Date</label>
-                <input type="date" id="goalDateInput" value="${todayFormatted}" style="width: 100%; padding: 12px 15px; background: #fffdf5; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 0.95rem; outline: none; box-sizing: border-box;">
-              </div>
-            </div>
-
-            <div style="margin-bottom: 25px;">
-              <label style="display: block; font-size: 0.9rem; font-weight: 600; color: #1e293b; margin-bottom: 8px;">Goal Details / Notes</label>
-              <textarea id="goalDetailsInput" rows="4" placeholder="Write more details about your goal..." style="width: 100%; padding: 12px 15px; background: #fffdf5; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 0.95rem; outline: none; resize: vertical; box-sizing: border-box;"></textarea>
-            </div>
-
-            <div style="display: flex; gap: 10px;">
-              <button type="submit" id="goalSubmitBtn" style="padding: 12px 25px; background: #d97706; color: white; border: none; border-radius: 10px; font-weight: 600; font-size: 0.95rem; cursor: pointer;">Save Goal</button>
-              <button type="button" id="goalCancelEditBtn" style="display: none; padding: 12px 25px; background: #cbd5e1; color: #334155; border: none; border-radius: 10px; font-weight: 600; font-size: 0.95rem; cursor: pointer;">Cancel</button>
-            </div>
-          </form>
-        </div>
-        
-        <div style="margin-top: 40px;">
-          <h3 style="color: #1e293b; font-size: 1.2rem; margin-bottom: 15px;">Your Saved Goals</h3>
-          <div id="goalsListArea"></div>
-        </div>
-      `;
-
-      if (mainContainer.firstChild) {
-        mainContainer.insertBefore(goalFormContainer, mainContainer.firstChild);
-      } else {
-        mainContainer.appendChild(goalFormContainer);
-      }
-    }
-
     const goalEntryForm = document.getElementById('goalEntryForm');
     const goalTitleInput = document.getElementById('goalTitleInput');
     const goalDateInput = document.getElementById('goalDateInput');
@@ -572,7 +518,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const goalFormHeading = document.getElementById('goalFormHeading');
     const targetArea = document.getElementById('goalsListArea');
 
-    // Hushughulikia Submit ya Fomu (Add au Update Goal)
+    const todayFormatted = new Date().toISOString().split('T')[0];
+    if (goalDateInput && !goalDateInput.value) {
+      goalDateInput.value = todayFormatted;
+    }
+
     if (goalEntryForm) {
       goalEntryForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -611,12 +561,11 @@ document.addEventListener('DOMContentLoaded', () => {
           });
 
           if (response.ok) {
-            // Safisha fomu
             goalEntryForm.reset();
             editGoalIdField.value = '';
             goalSubmitBtn.textContent = 'Save Goal';
             goalFormHeading.textContent = 'Set New Goal.';
-            goalCancelEditBtn.style.display = 'none';
+            if (goalCancelEditBtn) goalCancelEditBtn.style.display = 'none';
             goalDateInput.value = new Date().toISOString().split('T')[0];
 
             fetchGoals();
@@ -657,6 +606,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const goals = await response.json();
 
         if (response.ok && Array.isArray(goals)) {
+          if (!targetArea) return;
           targetArea.innerHTML = '';
 
           if (goals.length === 0) {
@@ -742,7 +692,6 @@ document.addEventListener('DOMContentLoaded', () => {
               });
 
               goalCard.querySelector('.update-goal-btn').addEventListener('click', () => {
-                // Jaza taarifa kwenye fomu iliyo juu ili mtumiaji aweze kuhariri kwa urahisi
                 editGoalIdField.value = goal._id;
                 goalTitleInput.value = goal.title || goal.goalText || '';
                 goalDateInput.value = goal.date ? goal.date.split('T')[0] : todayStr;
@@ -750,7 +699,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 goalFormHeading.textContent = 'Edit Goal.';
                 goalSubmitBtn.textContent = 'Update Goal';
-                goalCancelEditBtn.style.display = 'inline-block';
+                if (goalCancelEditBtn) goalCancelEditBtn.style.display = 'inline-block';
                 
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 goalTitleInput.focus();
