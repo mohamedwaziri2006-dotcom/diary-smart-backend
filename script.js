@@ -552,12 +552,44 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchTasks();
   }
   // ==========================================================================
-  // 8. GOALS TRACKER LOGIC (INLINE FORM INSTEAD OF BROWSER PROMPT)
+  // 8. GOALS TRACKER LOGIC (CUSTOM MODERN MODAL)
   // ==========================================================================
   const goalsContainer = document.querySelector('.grid-dashboard') || document.body;
   if (window.location.pathname.includes('goals.html')) {
     
-    // 1. Kutengeneza fomu ya kuandikia goal hapo hapo kwenye ukurasa (kama haipo tayari)
+    // 1. Kutengeneza Custom Modal ya HTML kiotomatiki isiyo na pop-ups za kivinjari
+    let customModal = document.getElementById('customGoalModal');
+    if (!customModal) {
+      customModal = document.createElement('div');
+      customModal.id = 'customGoalModal';
+      customModal.style.cssText = 'display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center;';
+      
+      customModal.innerHTML = `
+        <div style="background:#fff; width:90%; max-width:400px; padding:30px; border-radius:20px; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.15); font-family:'Outfit', sans-serif; position:relative;">
+          
+          <div style="width:60px; height:60px; background:#fff7ed; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 15px auto;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <circle cx="12" cy="12" r="6"></circle>
+              <circle cx="12" cy="12" r="2"></circle>
+            </svg>
+          </div>
+
+          <h3 id="goalModalTitle" style="margin:0 0 10px 0; font-size:1.4rem; color:#1e293b; font-weight:700;">Add New Goal</h3>
+          <p id="goalModalDesc" style="margin:0 0 20px 0; font-size:0.9rem; color:#64748b;">Weka lengo lako jipya hapa chini ili uweze kulifuatilia.</p>
+          
+          <input type="text" id="modalGoalInput" placeholder="Andika lengo lako hapa..." style="width:100%; padding:12px 15px; border:1px solid #cbd5e1; border-radius:10px; font-size:0.95rem; margin-bottom:20px; outline:none; box-sizing:border-box;">
+          
+          <div style="display:flex; gap:10px; justify-content:center;">
+            <button id="modalCancelBtn" style="flex:1; padding:12px; background:#e2e8f0; color:#475569; border:none; border-radius:12px; font-weight:600; cursor:pointer;">Cancel</button>
+            <button id="modalOkBtn" style="flex:1; padding:12px; background:#d97706; color:white; border:none; border-radius:12px; font-weight:600; cursor:pointer;">OK</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(customModal);
+    }
+
+    // Eneo la kuonyesha malengo
     let targetArea = document.getElementById('goalsListArea');
     if (!targetArea) {
       targetArea = document.createElement('div');
@@ -566,24 +598,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.querySelector('main')?.appendChild(targetArea) || document.body.appendChild(targetArea);
     }
 
-    // Weka eneo la fomu ya kuongezea goal chini ya kitufe cha Add Goal
-    const dashboardGrid = document.querySelector('.grid-dashboard');
-    let formWrapper = document.getElementById('inlineGoalForm');
-    if (!formWrapper && dashboardGrid) {
-      formWrapper = document.createElement('div');
-      formWrapper.id = 'inlineGoalForm';
-      formWrapper.style.cssText = 'grid-column: 1 / -1; margin-top: 15px; display: none; background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #cbd5e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05);';
-      formWrapper.innerHTML = `
-        <input type="text" id="goalInputText" placeholder="Andika lengo lako jipya hapa..." style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; margin-bottom: 10px; outline: none;">
-        <div style="display: flex; gap: 10px; justify-content: flex-end;">
-          <button id="cancelGoalBtn" style="padding: 6px 14px; background: #94a3b8; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancel</button>
-          <button id="saveGoalBtn" style="padding: 6px 14px; background: var(--brand-primary, #d97706); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">Save Goal</button>
-        </div>
-      `;
-      dashboardGrid.appendChild(formWrapper);
-    }
-
-    // Kitendakazi cha kuleta malengo kutoka Backend
+    // Kitendakazi cha kuchora malengo kutoka Backend
     async function fetchGoals() {
       try {
         const response = await fetch(`${API_BASE_URL}/api/goals/my-goals`, {
@@ -601,7 +616,6 @@ document.addEventListener('DOMContentLoaded', () => {
           // Panga malengo kuanzia tarehe ya hivi karibuni (Descending Order)
           goals.sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt));
 
-          // Panga kimakundi kulingana na tarehe
           const groupsMap = new Map();
           goals.forEach(goal => {
             const rawDate = goal.date || goal.createdAt;
@@ -612,7 +626,6 @@ document.addEventListener('DOMContentLoaded', () => {
             groupsMap.get(goalDate).push(goal);
           });
 
-          // Kuchora makundi ya tarehe na malengo yake
           groupsMap.forEach((dateGoals, dateStr) => {
             const dateSection = document.createElement('div');
             dateSection.style.marginBottom = '20px';
@@ -648,7 +661,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
               `;
 
-              // Kitufe cha kuweka tiki (Complete / Uncomplete)
+              // Kuweka tiki ya kukamilisha lengo
               const checkbox = goalCard.querySelector('.complete-checkbox');
               checkbox.addEventListener('change', async () => {
                 try {
@@ -666,7 +679,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
               });
 
-              // Kifutio cha Lengo (Delete) - Hapa tumetumia custom confirm badala ya popup ya browser kama iliwezekana, au tunafuta moja kwa moja
+              // Kufuta Lengo
               goalCard.querySelector('.delete-goal-btn').addEventListener('click', async () => {
                 try {
                   const res = await fetch(`${API_BASE_URL}/api/goals/delete/${goal._id}`, {
@@ -679,13 +692,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
               });
 
-              // Kitufe cha Edit / Update Lengo (Hapa tunatumia inline input badala ya prompt)
+              // Kuedit Lengo kupitia Custom Modal
               goalCard.querySelector('.update-goal-btn').addEventListener('click', () => {
-                const currentTitle = goal.title || goal.goalText;
-                const newTitle = prompt('Update your goal:', currentTitle); // Unaweza kubadilisha hii pia kama hutaki kabisa prompt
-                if (newTitle !== null && newTitle.trim() !== '') {
-                  updateGoalText(goal._id, newTitle.trim());
-                }
+                openGoalModal('Edit Goal', goal.title || goal.goalText, async (newTitle) => {
+                  if (newTitle && newTitle.trim() !== '') {
+                    try {
+                      const res = await fetch(`${API_BASE_URL}/api/goals/update/${goal._id}`, {
+                        method: 'PUT',
+                        headers: {
+                          'Content-Type': 'application/json',
+                          'Authorization': 'Bearer ' + (localStorage.getItem('token') || '')
+                        },
+                        body: JSON.stringify({ title: newTitle.trim() })
+                      });
+                      if (res.ok) fetchGoals();
+                    } catch (err) {
+                      console.error('Update Goal Error:', err);
+                    }
+                  }
+                });
               });
 
               dateSection.appendChild(goalCard);
@@ -699,70 +724,63 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    async function updateGoalText(id, title) {
-      try {
-        const res = await fetch(`${API_BASE_URL}/api/goals/update/${id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + (localStorage.getItem('token') || '')
-          },
-          body: JSON.stringify({ title })
-        });
-        if (res.ok) fetchGoals();
-      } catch (err) {
-        console.error('Update Goal Error:', err);
-      }
+    // Kitendakazi cha kufungua Custom Modal yetu nzuri
+    function openGoalModal(titleText, initialValue = '', callback) {
+      document.getElementById('goalModalTitle').textContent = titleText;
+      const inputField = document.getElementById('modalGoalInput');
+      inputField.value = initialValue;
+      customModal.style.display = 'flex';
+      inputField.focus();
+
+      const okBtn = document.getElementById('modalOkBtn');
+      const cancelBtn = document.getElementById('modalCancelBtn');
+
+      // Safisha event za zamani ili zisijirudie
+      const newOkBtn = okBtn.cloneNode(true);
+      const newCancelBtn = cancelBtn.cloneNode(true);
+      okBtn.parentNode.replaceChild(newOkBtn, okBtn);
+      cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+
+      newOkBtn.addEventListener('click', () => {
+        const val = inputField.value;
+        customModal.style.display = 'none';
+        if (callback) callback(val);
+      });
+
+      newCancelBtn.addEventListener('click', () => {
+        customModal.style.display = 'none';
+      });
     }
 
-    // Kusimamia kitufe cha "Add Goal" kufungua fomu ya ndani
+    // Kitufe cha "Add Goal" kinachofungua modal yetu ya kisasa
     const addGoalBtn = document.getElementById('addGoalBtn');
-    const goalInputText = document.getElementById('goalInputText');
-    const saveGoalBtn = document.getElementById('saveGoalBtn');
-    const cancelGoalBtn = document.getElementById('cancelGoalBtn');
-
-    if (addGoalBtn && formWrapper) {
+    if (addGoalBtn) {
       addGoalBtn.addEventListener('click', () => {
-        formWrapper.style.display = formWrapper.style.display === 'none' ? 'block' : 'none';
-        if (goalInputText) goalInputText.focus();
-      });
-    }
+        openGoalModal('Add New Goal', '', async (goalTitle) => {
+          if (!goalTitle || goalTitle.trim() === '') return;
 
-    if (cancelGoalBtn && formWrapper) {
-      cancelGoalBtn.addEventListener('click', () => {
-        formWrapper.style.display = 'none';
-        if (goalInputText) goalInputText.value = '';
-      });
-    }
+          const userId = localStorage.getItem('userId');
+          const currentDate = new Date().toISOString().split('T')[0];
 
-    if (saveGoalBtn && goalInputText) {
-      saveGoalBtn.addEventListener('click', async () => {
-        const goalTitle = goalInputText.value.trim();
-        if (!goalTitle) return;
+          try {
+            const response = await fetch(`${API_BASE_URL}/api/goals/add`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + (localStorage.getItem('token') || '')
+              },
+              body: JSON.stringify({ userId, title: goalTitle.trim(), date: currentDate, completed: false })
+            });
 
-        const userId = localStorage.getItem('userId');
-        const currentDate = new Date().toISOString().split('T')[0];
-
-        try {
-          const response = await fetch(`${API_BASE_URL}/api/goals/add`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + (localStorage.getItem('token') || '')
-            },
-            body: JSON.stringify({ userId, title: goalTitle, date: currentDate, completed: false })
-          });
-
-          if (response.ok) {
-            goalInputText.value = '';
-            formWrapper.style.display = 'none';
-            fetchGoals();
-          } else {
-            alert('Failed to add goal.');
+            if (response.ok) {
+              fetchGoals();
+            } else {
+              alert('Failed to add goal.');
+            }
+          } catch (err) {
+            console.error('Add Goal Error:', err);
           }
-        } catch (err) {
-          console.error('Add Goal Error:', err);
-        }
+        });
       });
     }
 
