@@ -456,3 +456,19 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 });
+// Mfano wa jinsi ya kuita modal yako maalum
+const alertModal = document.getElementById('alertModal');
+const alertTitle = document.getElementById('alertTitle');
+const alertMessage = document.getElementById('alertMessage');
+
+if(alertModal) {
+  alertTitle.textContent = "Imefutwa!";
+  alertMessage.textContent = "Task imefutwa kwa mafanikio!";
+  alertModal.classList.add('active');
+}
+
+// Kitufe cha OK cha kufunga modal
+document.getElementById('alertBtn').onclick = function() {
+  alertModal.classList.remove('active');
+  location.reload(); // Kama unataka kurasa ijifunye refresh baada ya kufuta
+};
