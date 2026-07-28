@@ -32,7 +32,7 @@ app.get('/api/status', (req, res) => {
 });
 
 // Njia ya mwisho kabisa kwa ajili ya kusoma index.html na kuruhusu page zote za frontend zifunguke
-app.get('/*', (req, res) => {
+app.get(/.*/, (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
