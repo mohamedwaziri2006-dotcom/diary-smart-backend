@@ -5,10 +5,44 @@
 // Base URL for your live Render Backend
 const API_BASE_URL = 'https://diary-smart-backend.onrender.com';
 
-// Global functions for Update & Delete (Zikiwa hapa zinapatikana global kwenye HTML onclick)
-async function deleteDiary(id) {
-  if (!confirm('Una uhakika unataka kufuta hii diary?')) return;
+// Global helper for alerts from outside DOMContentLoaded if needed
+function triggerAlert(type, title, message, redirectUrl = null) {
+  const alertModal = document.getElementById('alertModal');
+  const alertTitle = document.getElementById('alertTitle');
+  const alertMessage = document.getElementById('alertMessage');
+  const statusIcon = document.getElementById('statusIcon');
+  const alertBtn = document.getElementById('alertBtn');
 
+  if (!alertModal || !statusIcon || !alertTitle || !alertMessage) {
+    alert(`${title}: ${message}`);
+    if (redirectUrl) window.location.href = redirectUrl;
+    return;
+  }
+
+  window.alertRedirectUrl = redirectUrl;
+  statusIcon.className = 'status-icon-wrapper ' + type;
+
+  if (type === 'success') {
+    statusIcon.innerHTML = `
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>`;
+  } else {
+    statusIcon.innerHTML = `
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>`;
+  }
+
+  alertTitle.textContent = title;
+  alertMessage.textContent = message;
+  alertModal.classList.add('active');
+}
+
+// Global functions for Update & Delete
+async function deleteDiary(id) {
   try {
     const response = await fetch(`${API_BASE_URL}/api/diary/delete/${id}`, {
       method: 'DELETE',
@@ -19,14 +53,13 @@ async function deleteDiary(id) {
 
     const data = await response.json();
     if (response.ok) {
-      alert('Imefutwa mafanikio!');
-      window.location.reload();
+      triggerAlert('success', 'Imefutwa!', 'Diary entry has been successfully deleted!', 'tasks.html');
     } else {
-      alert(data.message || 'Imeshindikana kufuta.');
+      triggerAlert('error', 'Imeshindikana', data.message || 'Imeshindikana kufuta.');
     }
   } catch (error) {
     console.error('Delete Error:', error);
-    alert('Hitilafu ya mtandao.');
+    triggerAlert('error', 'Hitilafu', 'Hitilafu ya mtandao.');
   }
 }
 
@@ -44,47 +77,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Global variables for Alert Modal
   const alertModal = document.getElementById('alertModal');
-  const alertTitle = document.getElementById('alertTitle');
-  const alertMessage = document.getElementById('alertMessage');
-  const statusIcon = document.getElementById('statusIcon');
   const alertBtn = document.getElementById('alertBtn');
 
-  let alertRedirectUrl = null;
-
   function showAlert(type, title, message, redirectUrl = null) {
-    if (!alertModal || !statusIcon || !alertTitle || !alertMessage) {
-      alert(`${title}: ${message}`);
-      if (redirectUrl) window.location.href = redirectUrl;
-      return;
-    }
-
-    alertRedirectUrl = redirectUrl;
-    statusIcon.className = 'status-icon-wrapper ' + type;
-
-    if (type === 'success') {
-      statusIcon.innerHTML = `
-        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="20 6 9 17 4 12"></polyline>
-        </svg>`;
-    } else {
-      statusIcon.innerHTML = `
-        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="12" y1="8" x2="12" y2="12"></line>
-          <line x1="12" y1="16" x2="12.01" y2="16"></line>
-        </svg>`;
-    }
-
-    alertTitle.textContent = title;
-    alertMessage.textContent = message;
-    alertModal.classList.add('active');
+    triggerAlert(type, title, message, redirectUrl);
   }
 
   if (alertBtn && alertModal) {
     alertBtn.addEventListener('click', function () {
       alertModal.classList.remove('active');
-      if (alertRedirectUrl) {
-        window.location.href = alertRedirectUrl;
+      if (window.alertRedirectUrl) {
+        window.location.href = window.alertRedirectUrl;
       }
     });
   }
@@ -265,7 +268,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const diaryForm = document.getElementById('diaryForm');
   if (diaryForm && window.location.pathname.includes('diary.html')) {
     
-    // Angalia kama kuna editId ili kujaza fomu wakati wa ku-update
     const editId = localStorage.getItem('editId');
     if (editId) {
       document.getElementById('entryTitle').value = localStorage.getItem('editTitle') || '';
@@ -310,7 +312,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       try {
-        // Angalia kama ni Update (PUT) au Add mpya (POST)
         const currentEditId = localStorage.getItem('editId');
         const url = currentEditId ? `${API_BASE_URL}/api/diary/update/${currentEditId}` : `${API_BASE_URL}/api/diary/add`;
         const method = currentEditId ? 'PUT' : 'POST';
@@ -327,7 +328,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await response.json();
 
         if (response.ok) {
-          // Safisha localStorage ya edit baada ya kumaliza
           localStorage.removeItem('editId');
           localStorage.removeItem('editTitle');
           localStorage.removeItem('editDate');
@@ -382,16 +382,27 @@ document.addEventListener('DOMContentLoaded', () => {
               taskCard.style.border = '1px solid #ddd';
               taskCard.style.borderRadius = '8px';
 
+              // Tumia dataset kuhifadhi taarifa ili kuepuka changamoto za special characters/quotes kwenye onclick
               taskCard.innerHTML = `
                 <strong>${task.title}</strong>
                 <p style="font-size:0.8rem; color:var(--text-muted); margin-top:6px;">Mood: ${task.mood || 'Happy'} | Date: ${task.date || 'Today'}</p>
                 <p style="font-size:0.85rem; color:#444; margin-top:6px;">${task.details || task.content || ''}</p>
                 
                 <div style="margin-top: 10px; display: flex; gap: 10px;">
-                  <button onclick="editDiary('${task._id}', '${task.title}', '${task.date}', '${task.mood}', '${task.details}')" style="padding: 5px 10px; background: #ffc107; border: none; border-radius: 4px; cursor: pointer;">Update</button>
-                  <button onclick="deleteDiary('${task._id}')" style="padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Delete</button>
+                  <button class="update-btn" style="padding: 5px 10px; background: #ffc107; border: none; border-radius: 4px; cursor: pointer;">Update</button>
+                  <button class="delete-btn" style="padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Delete</button>
                 </div>
               `;
+
+              // Ambatisha Event Listeners kwa usalama zaidi dhidi ya mabano na quotes
+              taskCard.querySelector('.update-btn').addEventListener('click', () => {
+                editDiary(task._id, task.title, task.date, task.mood, task.details || task.content || '');
+              });
+
+              taskCard.querySelector('.delete-btn').addEventListener('click', () => {
+                deleteDiary(task._id);
+              });
+
               targetColumn.appendChild(taskCard);
             });
           }
