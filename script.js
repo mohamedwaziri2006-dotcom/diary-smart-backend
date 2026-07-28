@@ -13,9 +13,9 @@ function triggerAlert(type, title, message, redirectUrl = null) {
   const statusIcon = document.getElementById('statusIcon');
   const alertBtn = document.getElementById('alertBtn');
 
-  // Ikiwa modal haipo kabisa kwenye HTML ndipo itumie alert ya kawaida
+  // Ikiwa modal haipo kabisa kwenye HTML, onyo litatolewa kwenye Console badala ya Browser Alert
   if (!alertModal) {
-    alert(`${title}: ${message}`);
+    console.warn("Alert modal element not found in HTML!");
     if (redirectUrl) window.location.href = redirectUrl;
     return;
   }
@@ -43,7 +43,7 @@ function triggerAlert(type, title, message, redirectUrl = null) {
   if (alertMessage) alertMessage.textContent = message;
   
   alertModal.classList.add('active');
-  alertModal.style.display = 'flex'; // Kuhakikisha inaonekana moja kwa moja
+  alertModal.style.display = 'flex';
 }
 
 // Global functions for Update & Delete
@@ -58,13 +58,13 @@ async function deleteDiary(id) {
 
     const data = await response.json();
     if (response.ok) {
-      triggerAlert('success', 'Imefutwa!', 'Diary entry has been successfully deleted!', 'tasks.html');
+      triggerAlert('success', 'Deleted!', 'Diary entry has been successfully deleted!', 'tasks.html');
     } else {
-      triggerAlert('error', 'Imeshindikana', data.message || 'Imeshindikana kufuta.');
+      triggerAlert('error', 'Failed', data.message || 'Failed to delete entry.');
     }
   } catch (error) {
     console.error('Delete Error:', error);
-    triggerAlert('error', 'Hitilafu', 'Hitilafu ya mtandao.');
+    triggerAlert('error', 'Error', 'Network connection error.');
   }
 }
 
@@ -456,19 +456,3 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 });
-// Mfano wa jinsi ya kuita modal yako maalum
-const alertModal = document.getElementById('alertModal');
-const alertTitle = document.getElementById('alertTitle');
-const alertMessage = document.getElementById('alertMessage');
-
-if(alertModal) {
-  alertTitle.textContent = "Imefutwa!";
-  alertMessage.textContent = "Task imefutwa kwa mafanikio!";
-  alertModal.classList.add('active');
-}
-
-// Kitufe cha OK cha kufunga modal
-document.getElementById('alertBtn').onclick = function() {
-  alertModal.classList.remove('active');
-  location.reload(); // Kama unataka kurasa ijifunye refresh baada ya kufuta
-};
