@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
           showAlert('success', 'Welcome Back!', 'Login successful.', 'diary.html');
         } else {
-          showAlert('error', 'Login Failed!', data.msg || 'Invalid email or password.');
+          showAlert('error', 'Login Failed!', data.msg || data.message || 'Invalid email or password.');
           if (submitBtn) {
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalBtnText;
@@ -247,9 +247,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await response.json();
 
         if (response.ok) {
-          showAlert('success', 'Registration Complete!', data.msg || 'Account created successfully!', 'index.html');
+          showAlert('success', 'Registration Complete!', data.msg || data.message || 'Account created successfully!', 'index.html');
         } else {
-          showAlert('error', 'Registration Failed!', data.msg || data.error || 'Error creating account.');
+          showAlert('error', 'Registration Failed!', data.msg || data.message || 'Error creating account.');
           if (regSubmitBtn) {
             regSubmitBtn.disabled = false;
             regSubmitBtn.innerHTML = originalRegBtnText;
@@ -267,7 +267,88 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================================================
-  // 5. DIARY FORM & API INTEGRATION (ADD OR UPDATE)
+  // 5. SETTINGS PAGE LOGIC (NEW)
+  // ==========================================================================
+  if (window.location.pathname.includes('settings.html')) {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      window.location.href = 'index.html';
+      return;
+    }
+
+    // Rekebisha hapa IDs kama kwenye HTML yako ziko tofauti (mfano: #name au #username)
+    const nameInput = document.getElementById('name') || document.getElementById('username');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirmPassword') || document.getElementById('confirm-password');
+    const saveChangesBtn = document.querySelector('button[type="submit"]') || document.querySelector('.save-btn') || document.getElementById('saveChangesBtn');
+
+    // Vuta taarifa za mtumiaji kutoka Backend
+    async function fetchUserProfile() {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
+          method: 'GET',
+          headers: {
+            'Authorization': 'Bearer ' + token
+          }
+        });
+        const userData = await response.json();
+        if (response.ok) {
+          if (nameInput) nameInput.value = userData.username || '';
+          if (emailInput) emailInput.value = userData.email || '';
+        }
+      } catch (err) {
+        console.error('Error fetching profile:', err);
+      }
+    }
+
+    fetchUserProfile();
+
+    // Hifadhi mabadiliko ya Profile
+    if (saveChangesBtn) {
+      saveChangesBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+
+        const username = nameInput ? nameInput.value.trim() : '';
+        const email = emailInput ? emailInput.value.trim() : '';
+        const password = passwordInput ? passwordInput.value : '';
+        const confirmPassword = confirmPasswordInput ? confirmPasswordInput.value : '';
+
+        if (password && password !== confirmPassword) {
+          showAlert('error', 'Validation Error', 'New passwords do not match.');
+          return;
+        }
+
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/auth/update-profile`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({ username, email, password })
+          });
+
+          const data = await response.json();
+          if (response.ok) {
+            if (username) localStorage.setItem('username', username);
+            if (email) localStorage.setItem('email', email);
+            showAlert('success', 'Updated!', data.message || 'Profile updated successfully!');
+            if (passwordInput) passwordInput.value = '';
+            if (confirmPasswordInput) confirmPasswordInput.value = '';
+          } else {
+            showAlert('error', 'Update Failed', data.message || 'Failed to update profile.');
+          }
+        } catch (err) {
+          console.error('Profile Update Error:', err);
+          showAlert('error', 'Error', 'Network connection error.');
+        }
+      });
+    }
+  }
+
+  // ==========================================================================
+  // 6. DIARY FORM & API INTEGRATION (ADD OR UPDATE)
   // ==========================================================================
   const diaryForm = document.getElementById('diaryForm');
   if (diaryForm && window.location.pathname.includes('diary.html')) {
@@ -358,7 +439,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================================================
-  // 6. FETCH & DISPLAY TASKS (FULL CONTAINER GRID LAYOUT)
+  // 7. FETCH & DISPLAY TASKS (FULL CONTAINER GRID LAYOUT)
   // ==========================================================================
   const taskGrid = document.querySelector('.grid-dashboard') || document.querySelector('main') || document.body;
   if (window.location.pathname.includes('tasks.html')) {
@@ -468,7 +549,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================================================
-  // 7. PROFILE MODAL & USER INFO HANDLING
+  // 8. PROFILE MODAL & USER INFO HANDLING
   // ==========================================================================
   const profileIcon = document.getElementById('profileIcon');
   const profileModal = document.getElementById('profileModal');
@@ -504,7 +585,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================================================
-  // 8. GOALS TRACKER LOGIC (STATIC FORM IN HTML + DYNAMIC LIST)
+  // 9. GOALS TRACKER LOGIC (STATIC FORM IN HTML + DYNAMIC LIST)
   // ==========================================================================
   if (window.location.pathname.includes('goals.html')) {
     
