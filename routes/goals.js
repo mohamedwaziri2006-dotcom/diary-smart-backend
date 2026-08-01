@@ -1,16 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const Goal = require('../models/Goal');
-// Kwa sababu auth.js ipo ndani ya folda moja (routes), tunatumia ./auth
 const verifyToken = require('./auth'); 
 
 // 1. Add New Goal
 router.post('/add', verifyToken, async (req, res) => {
   try {
+    console.log("USER DATA FROM TOKEN:", req.user); // Hii itaonyesha kama token inasomeka vizuri
     const { title, date, details } = req.body;
     
     const newGoal = new Goal({ 
-      userId: req.user.id, // Inachukua ID halisi ya mtumiaji aliyelogin
+      userId: req.user.id || req.user._id, // Inajaribu zote mbili ili kuepusha kukosekana kwa ID
       title, 
       date: date || Date.now(), 
       details: details || '' 
@@ -19,25 +19,30 @@ router.post('/add', verifyToken, async (req, res) => {
     const savedGoal = await newGoal.save();
     res.status(201).json(savedGoal);
   } catch (err) {
+    console.error("ERROR KUHIFADHI GOAL:", err.message); // Inaandika kosa kamili kwenye terminal
     res.status(500).json({ message: err.message });
   }
 });
 
-// 2. Get User Goals (Inachuja na kuleta za mtumiaji aliyelogin pekee)
+// 2. Get User Goals
 router.get('/my-goals', verifyToken, async (req, res) => {
   try {
-    const goals = await Goal.find({ userId: req.user.id }).sort({ createdAt: -1 });
+    console.log("USER ID KUPATA GOALS:", req.user);
+    const userId = req.user.id || req.user._id;
+    const goals = await Goal.find({ userId: userId }).sort({ createdAt: -1 });
     res.json(goals);
   } catch (err) {
+    console.error("ERROR KUSOMA GOALS:", err.message);
     res.status(500).json({ message: err.message });
   }
 });
 
-// 3. Update Goal (Edit / Complete Tick)
+// 3. Update Goal
 router.put('/update/:id', verifyToken, async (req, res) => {
   try {
+    const userId = req.user.id || req.user._id;
     const updatedGoal = await Goal.findOneAndUpdate(
-      { _id: req.params.id, userId: req.user.id },
+      { _id: req.params.id, userId: userId },
       { $set: req.body },
       { new: true }
     );
@@ -55,7 +60,8 @@ router.put('/update/:id', verifyToken, async (req, res) => {
 // 4. Delete Goal
 router.delete('/delete/:id', verifyToken, async (req, res) => {
   try {
-    const deletedGoal = await Goal.findOneAndDelete({ _id: req.params.id, userId: req.user.id });
+    const userId = req.user.id || req.user._id;
+    const deletedGoal = await Goal.findOneAndDelete({ _id: req.params.id, userId: userId });
 
     if (!deletedGoal) {
       return res.status(404).json({ message: 'Goal haipatikani au huna ruhusa' });
