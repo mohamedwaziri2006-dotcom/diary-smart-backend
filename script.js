@@ -267,7 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================================================
-  // 5. SETTINGS PAGE LOGIC (NEW)
+  // 5. SETTINGS PAGE LOGIC
   // ==========================================================================
   if (window.location.pathname.includes('settings.html')) {
     const token = localStorage.getItem('token');
@@ -276,14 +276,12 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Rekebisha hapa IDs kama kwenye HTML yako ziko tofauti (mfano: #name au #username)
     const nameInput = document.getElementById('name') || document.getElementById('username');
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
     const confirmPasswordInput = document.getElementById('confirmPassword') || document.getElementById('confirm-password');
     const saveChangesBtn = document.querySelector('button[type="submit"]') || document.querySelector('.save-btn') || document.getElementById('saveChangesBtn');
 
-    // Vuta taarifa za mtumiaji kutoka Backend
     async function fetchUserProfile() {
       try {
         const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
@@ -304,7 +302,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     fetchUserProfile();
 
-    // Hifadhi mabadiliko ya Profile
     if (saveChangesBtn) {
       saveChangesBtn.addEventListener('click', async (e) => {
         e.preventDefault();
@@ -585,7 +582,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================================================
-  // 9. GOALS TRACKER LOGIC (STATIC FORM IN HTML + DYNAMIC LIST)
+  // 9. GOALS TRACKER LOGIC
   // ==========================================================================
   if (window.location.pathname.includes('goals.html')) {
     
@@ -717,7 +714,6 @@ document.addEventListener('DOMContentLoaded', () => {
               </div>
             `;
 
-            // Kitendo cha Checkbox (Tick)
             const checkbox = goalCard.querySelector('.complete-checkbox');
             checkbox.addEventListener('change', async () => {
               try {
@@ -735,7 +731,6 @@ document.addEventListener('DOMContentLoaded', () => {
               }
             });
 
-            // Kitendo cha Delete
             goalCard.querySelector('.delete-goal-btn').addEventListener('click', async () => {
               try {
                 const res = await fetch(`${API_BASE_URL}/api/goals/delete/${goal._id}`, {
@@ -748,7 +743,6 @@ document.addEventListener('DOMContentLoaded', () => {
               }
             });
 
-            // Kitendo cha Edit / Update
             goalCard.querySelector('.update-goal-btn').addEventListener('click', () => {
               editGoalIdField.value = goal._id;
               goalTitleInput.value = goal.title || goal.goalText || '';
