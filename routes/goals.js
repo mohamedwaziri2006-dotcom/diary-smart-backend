@@ -1,12 +1,21 @@
 const express = require('express');
 const router = express.Router();
 const Goal = require('../models/Goal');
+// Kwa sababu auth.js ipo ndani ya folda moja (routes), tunatumia ./auth
+const verifyToken = require('./auth'); 
 
 // 1. Add New Goal
-router.post('/add', async (req, res) => {
+router.post('/add', verifyToken, async (req, res) => {
   try {
-    const { userId, title, date, details } = req.body;
-    const newGoal = new Goal({ userId, title, date, details });
+    const { title, date, details } = req.body;
+    
+    const newGoal = new Goal({ 
+      userId: req.user.id, // Inachukua ID halisi ya mtumiaji aliyelogin
+      title, 
+      date: date || Date.now(), 
+      details: details || '' 
+    });
+
     const savedGoal = await newGoal.save();
     res.status(201).json(savedGoal);
   } catch (err) {
@@ -14,12 +23,10 @@ router.post('/add', async (req, res) => {
   }
 });
 
-// 2. Get User Goals
-router.get('/my-goals', async (req, res) => {
+// 2. Get User Goals (Inachuja na kuleta za mtumiaji aliyelogin pekee)
+router.get('/my-goals', verifyToken, async (req, res) => {
   try {
-    // Kama unatumia auth middleware kuweka req.user, unaweza kuibadilisha hapa, au tumia userId kutoka query/headers
-    // Kwa urahisi kulingana na frontend yako inayotuma token, unaweza kuchuja kwa user aliyelogin:
-    const goals = await Goal.find(); // Unaweza kuboresha ikamata ya user husika
+    const goals = await Goal.find({ userId: req.user.id }).sort({ createdAt: -1 });
     res.json(goals);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -27,13 +34,18 @@ router.get('/my-goals', async (req, res) => {
 });
 
 // 3. Update Goal (Edit / Complete Tick)
-router.put('/update/:id', async (req, res) => {
+router.put('/update/:id', verifyToken, async (req, res) => {
   try {
-    const updatedGoal = await Goal.findByIdAndUpdate(
-      req.params.id,
+    const updatedGoal = await Goal.findOneAndUpdate(
+      { _id: req.params.id, userId: req.user.id },
       { $set: req.body },
       { new: true }
     );
+    
+    if (!updatedGoal) {
+      return res.status(404).json({ message: 'Goal haipatikani au huna ruhusa' });
+    }
+
     res.json(updatedGoal);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -41,9 +53,14 @@ router.put('/update/:id', async (req, res) => {
 });
 
 // 4. Delete Goal
-router.delete('/delete/:id', async (req, res) => {
+router.delete('/delete/:id', verifyToken, async (req, res) => {
   try {
-    await Goal.findByIdAndDelete(req.params.id);
+    const deletedGoal = await Goal.findOneAndDelete({ _id: req.params.id, userId: req.user.id });
+
+    if (!deletedGoal) {
+      return res.status(404).json({ message: 'Goal haipatikani au huna ruhusa' });
+    }
+
     res.json({ message: 'Goal deleted successfully' });
   } catch (err) {
     res.status(500).json({ message: err.message });
