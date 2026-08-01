@@ -1,16 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const Goal = require('../models/Goal');
-const verifyToken = require('./auth'); 
+
+// Hapa tunaita auth.js kisha tunachukua .verifyToken yake maalum
+const authModule = require('./auth');
+const verifyToken = authModule.verifyToken; 
 
 // 1. Add New Goal
 router.post('/add', verifyToken, async (req, res) => {
   try {
-    console.log("USER DATA FROM TOKEN:", req.user); // Hii itaonyesha kama token inasomeka vizuri
+    console.log("USER DATA FROM TOKEN:", req.user);
     const { title, date, details } = req.body;
     
     const newGoal = new Goal({ 
-      userId: req.user.id || req.user._id, // Inajaribu zote mbili ili kuepusha kukosekana kwa ID
+      userId: req.user.id || req.user._id, 
       title, 
       date: date || Date.now(), 
       details: details || '' 
@@ -19,7 +22,7 @@ router.post('/add', verifyToken, async (req, res) => {
     const savedGoal = await newGoal.save();
     res.status(201).json(savedGoal);
   } catch (err) {
-    console.error("ERROR KUHIFADHI GOAL:", err.message); // Inaandika kosa kamili kwenye terminal
+    console.error("ERROR KUHIFADHI GOAL:", err.message);
     res.status(500).json({ message: err.message });
   }
 });
