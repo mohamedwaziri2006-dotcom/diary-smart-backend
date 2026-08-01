@@ -311,7 +311,7 @@ button, input, textarea, select {
 }
 
 /* ==========================================================================
-   6. FORM INPUT & CHECKBOX STYLES
+   6. FORM INPUT & CHECKBOX STYLES (IMFANYA RESPONSIVE KWENYE IPHONE/IOS)
    ========================================================================== */
 .form-group {
   margin-bottom: 20px;
@@ -338,6 +338,18 @@ button, input, textarea, select {
   border-color: var(--brand-primary);
   background: var(--bg-white);
   box-shadow: 0 0 0 3px rgba(212, 109, 37, 0.15);
+}
+
+/* iOS Safari Date Input Fix */
+input[type="date"].form-input,
+input[type="date"] {
+  width: 100%;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: var(--bg-light);
+  min-height: 48px; /* Inaongeza eneo la kugusa kwenye simu */
+  font-size: 16px;  /* Inazuia Safari isifanye auto-zoom ya shida */
 }
 
 /* Terms Checkbox Group */
