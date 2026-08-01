@@ -4,22 +4,43 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-// 1. KUJISAJILI (REGISTER)
+// --- 1. MIDDLEWARE YA KUHAKIKI TOKEN (Hii ndiyo ilikuwa inakosekana) ---
+const verifyToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'] || req.headers['Authorization'];
+  
+  if (!authHeader) {
+    return res.status(401).json({ message: 'Hakuna token, ruhusa imekataliwa' });
+  }
+
+  // Token huwa inakaa kama "Bearer <token>"
+  const token = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : authHeader;
+
+  if (!token) {
+    return res.status(401).json({ message: 'Fomati ya token si sahihi' });
+  }
+
+  try {
+    const verified = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = verified; // Inatoa { id: user._id } iliyowekwa wakati wa login
+    next();
+  } catch (err) {
+    res.status(403).json({ message: 'Token si sahihi au imeisha muda wake' });
+  }
+};
+
+// --- 2. KUJISAJILI (REGISTER) ---
 router.post('/register', async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
-    // Angalia kama mtumiaji tayari yupo
     let user = await User.findOne({ email });
     if (user) {
       return res.status(400).json({ message: 'Barua pepe hii tayari imesajiliwa' });
     }
 
-    // Ficha Nenosiri (Hash password)
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Hifadhi mtumiaji mpya
     user = new User({
       username,
       email,
@@ -34,24 +55,21 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// 2. KUINGIA (LOGIN)
+// --- 3. KUINGIA (LOGIN) ---
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Hakiki kama email ipo
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ message: 'Taarifa ulizoingiza si sahihi' });
     }
 
-    // Hakiki password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: 'Taarifa ulizoingiza si sahihi' });
     }
 
-    // Tengeneza Token (JWT)
     const token = jwt.sign(
       { id: user._id },
       process.env.JWT_SECRET,
@@ -72,4 +90,6 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// Tunatuma router pamoja na verifyToken ili iweze kutumika kwenye goals.js na sehemu zingine
+router.verifyToken = verifyToken;
 module.exports = router;
