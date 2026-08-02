@@ -45,16 +45,16 @@
 
               <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" class="form-input" required>
+                <input type="password" id="password" class="form-input">
               </div>
 
               <div class="form-group">
                 <label for="confirmPassword">Confirm Password</label>
-                <input type="password" id="confirmPassword" class="form-input" required>
+                <input type="password" id="confirmPassword" class="form-input">
               </div>
 
               <div class="form-actions-left">
-                <button type="submit" class="btn btn-primary btn-save">Save Changes</button>
+                <button type="submit" id="saveChangesBtn" class="btn btn-primary btn-save">Save Changes</button>
               </div>
             </form>
           </div>
@@ -125,6 +125,16 @@
       <div class="profile-footer">
         <button id="logoutBtn" class="logout-btn">Logout</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Alert Modal Popup (Inahitajika ili popup ya mafanikio iweze kuonekana) -->
+  <div id="alertModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div id="statusIcon" class="status-icon-wrapper"></div>
+      <h3 id="alertTitle">Title</h3>
+      <p id="alertMessage">Message here...</p>
+      <button id="alertBtn" class="primary-btn">OK</button>
     </div>
   </div>
 
