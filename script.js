@@ -5,7 +5,7 @@
 // Base URL for your live Render Backend
 const API_BASE_URL = 'https://diary-smart-backend.onrender.com';
 
-// Global helper for alerts matching the new Password Update Modal IDs
+// Global helper for alerts matching the Modal IDs
 function triggerAlert(type, title, message, redirectUrl = null) {
   const alertModal = document.getElementById('diaryAlertModal');
   const alertTitle = document.getElementById('diaryAlertTitle');
@@ -80,24 +80,28 @@ document.addEventListener('DOMContentLoaded', () => {
   const alertModal = document.getElementById('diaryAlertModal');
   const alertBtn = document.getElementById('diaryAlertCloseBtn');
 
-  function showAlert(type, title, message, redirectUrl = null) {
-    triggerAlert(type, title, message, redirectUrl);
-  }
-
   if (alertBtn && alertModal) {
-    alertBtn.addEventListener('click', function () {
+    // Remove any existing listeners by cloning or direct handling
+    alertBtn.replaceWith(alertBtn.cloneNode(true));
+    const freshAlertBtn = document.getElementById('diaryAlertCloseBtn');
+
+    freshAlertBtn.addEventListener('click', function (e) {
+      e.preventDefault();
       alertModal.classList.remove('active');
       if (window.alertRedirectUrl) {
-        window.location.href = window.alertRedirectUrl;
+        const targetUrl = window.alertRedirectUrl;
+        window.alertRedirectUrl = null;
+        window.location.href = targetUrl;
       }
     });
 
-    // Close when clicking outside the modal box
     alertModal.addEventListener('click', (e) => {
       if (e.target === alertModal) {
         alertModal.classList.remove('active');
         if (window.alertRedirectUrl) {
-          window.location.href = window.alertRedirectUrl;
+          const targetUrl = window.alertRedirectUrl;
+          window.alertRedirectUrl = null;
+          window.location.href = targetUrl;
         }
       }
     });
@@ -138,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const password = passwordInput ? passwordInput.value.trim() : '';
 
       if (!email || !password) {
-        showAlert('error', 'Login Failed!', 'Please fill in both email and password.');
+        triggerAlert('error', 'Login Failed!', 'Please fill in both email and password.');
         return;
       }
 
@@ -165,9 +169,9 @@ document.addEventListener('DOMContentLoaded', () => {
           localStorage.setItem('username', data.user.username);
           localStorage.setItem('email', data.user.email || email);
 
-          showAlert('success', 'Welcome Back!', 'Login successful.', 'diary.html');
+          triggerAlert('success', 'Welcome Back!', 'Login successful.', 'diary.html');
         } else {
-          showAlert('error', 'Login Failed!', data.msg || data.message || 'Invalid email or password.');
+          triggerAlert('error', 'Login Failed!', data.msg || data.message || 'Invalid email or password.');
           if (submitBtn) {
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalBtnText;
@@ -175,7 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       } catch (error) {
         console.error('Login Error:', error);
-        showAlert('error', 'Network Error!', 'Unable to connect to the server.');
+        triggerAlert('error', 'Network Error!', 'Unable to connect to the server.');
         if (submitBtn) {
           submitBtn.disabled = false;
           submitBtn.innerHTML = originalBtnText;
@@ -228,12 +232,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const confirmPassword = confirmPasswordInput ? confirmPasswordInput.value : '';
 
       if (!username || !email || !password) {
-        showAlert('error', 'Registration Failed!', 'Please fill in all required fields.');
+        triggerAlert('error', 'Registration Failed!', 'Please fill in all required fields.');
         return;
       }
 
       if (password !== confirmPassword) {
-        showAlert('error', 'Registration Failed!', 'Passwords do not match.');
+        triggerAlert('error', 'Registration Failed!', 'Passwords do not match.');
         return;
       }
 
@@ -254,9 +258,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await response.json();
 
         if (response.ok) {
-          showAlert('success', 'Registration Complete!', data.msg || data.message || 'Account created successfully!', 'index.html');
+          triggerAlert('success', 'Registration Complete!', data.msg || data.message || 'Account created successfully!', 'index.html');
         } else {
-          showAlert('error', 'Registration Failed!', data.msg || data.message || 'Error creating account.');
+          triggerAlert('error', 'Registration Failed!', data.msg || data.message || 'Error creating account.');
           if (regSubmitBtn) {
             regSubmitBtn.disabled = false;
             regSubmitBtn.innerHTML = originalRegBtnText;
@@ -264,7 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       } catch (error) {
         console.error('Registration Error:', error);
-        showAlert('error', 'Network Error!', 'Unable to connect to the server.');
+        triggerAlert('error', 'Network Error!', 'Unable to connect to the server.');
         if (regSubmitBtn) {
           regSubmitBtn.disabled = false;
           regSubmitBtn.innerHTML = originalRegBtnText;
@@ -274,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================================================
-  // 5. SETTINGS PAGE LOGIC (UPDATED WITH PASSWORD UPDATE SUCCESS POP-UP)
+  // 5. SETTINGS PAGE LOGIC
   // ==========================================================================
   if (window.location.pathname.includes('settings.html')) {
     const token = localStorage.getItem('token');
@@ -319,7 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const confirmPassword = confirmPasswordInput ? confirmPasswordInput.value : '';
 
         if (password && password !== confirmPassword) {
-          showAlert('error', 'Validation Error', 'New passwords do not match.');
+          triggerAlert('error', 'Validation Error', 'New passwords do not match.');
           return;
         }
 
@@ -346,19 +350,19 @@ document.addEventListener('DOMContentLoaded', () => {
             if (email) localStorage.setItem('email', email);
             
             if (password) {
-              showAlert('success', 'Password Updated!', 'Your password has been changed successfully.');
+              triggerAlert('success', 'Password Updated!', 'Your password has been changed successfully.');
             } else {
-              showAlert('success', 'Profile Updated!', data.message || 'Profile updated successfully!');
+              triggerAlert('success', 'Profile Updated!', data.message || 'Profile updated successfully!');
             }
 
             if (passwordInput) passwordInput.value = '';
             if (confirmPasswordInput) confirmPasswordInput.value = '';
           } else {
-            showAlert('error', 'Update Failed', data.message || 'Failed to update profile.');
+            triggerAlert('error', 'Update Failed', data.message || 'Failed to update profile.');
           }
         } catch (err) {
           console.error('Profile Update Error:', err);
-          showAlert('error', 'Error', 'Network connection error.');
+          triggerAlert('error', 'Error', 'Network connection error.');
         } finally {
           if (saveChangesBtn) {
             saveChangesBtn.disabled = false;
@@ -409,12 +413,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const userId = localStorage.getItem('userId');
 
       if (!userId) {
-        showAlert('error', 'Session Expired!', 'Please login to save your entries.', 'index.html');
+        triggerAlert('error', 'Session Expired!', 'Please login to save your entries.', 'index.html');
         return;
       }
 
       if (!title || !details) {
-        showAlert('error', 'Validation Error', 'Please fill in both title and memory details.');
+        triggerAlert('error', 'Validation Error', 'Please fill in both title and memory details.');
         return;
       }
 
@@ -448,9 +452,9 @@ document.addEventListener('DOMContentLoaded', () => {
           localStorage.removeItem('editMood');
           localStorage.removeItem('editDetails');
 
-          showAlert('success', 'Saved!', 'Your diary entry has been successfully saved!', 'tasks.html');
+          triggerAlert('success', 'Saved!', 'Your diary entry has been successfully saved!', 'tasks.html');
         } else {
-          showAlert('error', 'Error!', data.message || data.error || 'Failed to save entry.');
+          triggerAlert('error', 'Error!', data.message || data.error || 'Failed to save entry.');
           if (diarySubmitBtn) {
             diarySubmitBtn.disabled = false;
             diarySubmitBtn.innerHTML = originalDiaryBtnText;
@@ -458,7 +462,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       } catch (error) {
         console.error('Diary Save/Update Error:', error);
-        showAlert('error', 'Network Error!', 'Failed to connect to backend database.');
+        triggerAlert('error', 'Network Error!', 'Failed to connect to backend database.');
         if (diarySubmitBtn) {
           diarySubmitBtn.disabled = false;
           diarySubmitBtn.innerHTML = originalDiaryBtnText;
@@ -644,12 +648,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const userId = localStorage.getItem('userId');
 
         if (!userId) {
-          showAlert('error', 'Session Expired!', 'Please login to save goals.', 'index.html');
+          triggerAlert('error', 'Session Expired!', 'Please login to save goals.', 'index.html');
           return;
         }
 
         if (!title) {
-          showAlert('error', 'Validation Error', 'Please enter a goal title.');
+          triggerAlert('error', 'Validation Error', 'Please enter a goal title.');
           return;
         }
 
@@ -681,11 +685,11 @@ document.addEventListener('DOMContentLoaded', () => {
             fetchGoals();
           } else {
             const errData = await response.json();
-            showAlert('error', 'Failed', errData.message || 'Failed to save goal.');
+            triggerAlert('error', 'Failed', errData.message || 'Failed to save goal.');
           }
         } catch (error) {
           console.error('Goal Save Error:', error);
-          showAlert('error', 'Error', 'Network connection error.');
+          triggerAlert('error', 'Error', 'Network connection error.');
         } finally {
           goalSubmitBtn.disabled = false;
           goalSubmitBtn.textContent = originalBtnText;
