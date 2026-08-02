@@ -15,7 +15,6 @@
       <!-- Top Header Nav -->
       <header class="top-nav">
         <h2 class="page-title">Account Settings.</h2>
-        <!-- Profile Icon yenye ID sahihi ili ifanye kazi na script.js -->
         <div id="profileIcon" class="user-avatar" title="User Profile" style="cursor: pointer;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 22px; height: 22px;">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -67,8 +66,6 @@
 
   <!-- Bottom Navigation Bar for DIARY SMART -->
   <nav class="bottom-nav">
-    
-    <!-- 1. Diary -->
     <a href="diary.html" class="nav-item">
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
@@ -78,7 +75,6 @@
       </svg>
     </a>
 
-    <!-- 2. Tasks -->
     <a href="tasks.html" class="nav-item">
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="9 11 12 14 22 4"></polyline>
@@ -86,7 +82,6 @@
       </svg>
     </a>
 
-    <!-- 3. Goals -->
     <a href="goals.html" class="nav-item">
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="10"></circle>
@@ -95,14 +90,12 @@
       </svg>
     </a>
 
-    <!-- 4. Settings (Active hapa) -->
     <a href="settings.html" class="nav-item active">
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="3"></circle>
         <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
       </svg>
     </a>
-
   </nav>
 
   <!-- Profile Modal / Dropdown Popup -->
@@ -127,19 +120,21 @@
       </div>
     </div>
   </div>
-<!-- Password Update Success Modal -->
-<div id="diaryAlertModal" class="custom-modal-overlay">
-  <div class="alert-card-box">
-    <div class="status-icon-circle">
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="20 6 9 17 4 12"></polyline>
-      </svg>
+
+  <!-- Password Update Success Modal -->
+  <div id="diaryAlertModal" class="custom-modal-overlay">
+    <div class="alert-card-box">
+      <div class="status-icon-circle">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </div>
+      <h3 id="diaryAlertTitle" class="alert-card-title">Password Updated!</h3>
+      <p id="diaryAlertMessage" class="alert-card-message">Your password has been changed successfully.</p>
+      <button id="diaryAlertCloseBtn" class="alert-card-btn">OK</button>
     </div>
-    <h3 id="diaryAlertTitle" class="alert-card-title">Password Updated!</h3>
-    <p id="diaryAlertMessage" class="alert-card-message">Your password has been changed successfully.</p>
-    <button id="diaryAlertCloseBtn" class="alert-card-btn">OK</button>
   </div>
-</div>
+
   <script src="script.js"></script>
 </body>
 </html>
