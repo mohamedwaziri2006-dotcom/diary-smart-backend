@@ -735,3 +735,95 @@ body.auth-page .auth-card {
 .custom-modal.active {
   display: flex !important;
 }
+/* ==========================================================================
+   PASSWORD UPDATE SUCCESS POP-UP MODAL
+   ========================================================================== */
+.custom-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(44, 34, 30, 0.65);
+  backdrop-filter: blur(4px);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.custom-modal-overlay.active {
+  display: flex !important;
+}
+
+.alert-card-box {
+  background: #FFFFFF;
+  border-radius: 24px;
+  max-width: 380px;
+  width: 100%;
+  padding: 32px 24px;
+  text-align: center;
+  box-shadow: 0 16px 32px rgba(212, 109, 37, 0.2);
+  border: 1px solid rgba(212, 109, 37, 0.15);
+  box-sizing: border-box;
+  animation: modalScaleUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes modalScaleUp {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.status-icon-circle {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: rgba(212, 109, 37, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px auto;
+  color: #D46D25;
+}
+
+.alert-card-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #2C221E;
+  margin-bottom: 8px;
+}
+
+.alert-card-message {
+  font-size: 0.95rem;
+  color: #7A6E65;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.alert-card-btn {
+  width: 100%;
+  background-color: #D46D25;
+  color: #FFFFFF;
+  padding: 14px;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(212, 109, 37, 0.3);
+}
+
+.alert-card-btn:hover {
+  background-color: #B5581A;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(212, 109, 37, 0.4);
+}

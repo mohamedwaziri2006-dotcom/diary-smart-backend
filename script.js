@@ -814,3 +814,36 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+// Mfano unapo-submit fomu ya kubadilisha password
+const settingsForm = document.getElementById('settingsForm');
+
+if (settingsForm) {
+  settingsForm.addEventListener('submit', (e) => {
+    e.preventDefault(); // Zuia ukurasa usijirefresh wenyewe
+    
+    // Hapa unaweka mantiki yako ya kuhifadhi (AJAX/Fetch au LocalStorage)
+    
+    // Onyesha pop-up ya mafanikio ya password
+    const modal = document.getElementById('diaryAlertModal');
+    if (modal) {
+      modal.classList.add('active');
+    }
+  });
+}
+
+// Kufunga pop-up ukibonyeza kitufe cha OK
+const closeBtn = document.getElementById('diaryAlertCloseBtn');
+const modalOverlay = document.getElementById('diaryAlertModal');
+
+if (closeBtn && modalOverlay) {
+  closeBtn.addEventListener('click', () => {
+    modalOverlay.classList.remove('active');
+  });
+
+  // Kufunga ukibonyeza nje ya kadi
+  modalOverlay.addEventListener('click', (e) => {
+    if (e.target === modalOverlay) {
+      modalOverlay.classList.remove('active');
+    }
+  });
+}

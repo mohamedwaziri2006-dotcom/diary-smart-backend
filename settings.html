@@ -127,17 +127,19 @@
       </div>
     </div>
   </div>
-
-  <!-- Alert Modal Popup (Inahitajika ili popup ya mafanikio iweze kuonekana) -->
-  <div id="alertModal" class="modal" style="display: none;">
-    <div class="modal-content">
-      <div id="statusIcon" class="status-icon-wrapper"></div>
-      <h3 id="alertTitle">Title</h3>
-      <p id="alertMessage">Message here...</p>
-      <button id="alertBtn" class="primary-btn">OK</button>
+<!-- Password Update Success Modal -->
+<div id="diaryAlertModal" class="custom-modal-overlay">
+  <div class="alert-card-box">
+    <div class="status-icon-circle">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
     </div>
+    <h3 id="diaryAlertTitle" class="alert-card-title">Password Updated!</h3>
+    <p id="diaryAlertMessage" class="alert-card-message">Your password has been changed successfully.</p>
+    <button id="diaryAlertCloseBtn" class="alert-card-btn">OK</button>
   </div>
-
+</div>
   <script src="script.js"></script>
 </body>
 </html>
