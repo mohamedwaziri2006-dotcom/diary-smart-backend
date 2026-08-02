@@ -363,15 +363,22 @@ document.addEventListener('DOMContentLoaded', () => {
   const diaryForm = document.getElementById('diaryForm');
   if (diaryForm && window.location.pathname.includes('diary.html')) {
     
+    const entryDateInput = document.getElementById('entryDate');
+    const todayStr = new Date().toISOString().split('T')[0];
+
     const editId = localStorage.getItem('editId');
     if (editId) {
       document.getElementById('entryTitle').value = localStorage.getItem('editTitle') || '';
-      document.getElementById('entryDate').value = localStorage.getItem('editDate') || '';
+      if (entryDateInput) entryDateInput.value = localStorage.getItem('editDate') ? localStorage.getItem('editDate').split('T')[0] : todayStr;
       document.getElementById('entryMood').value = localStorage.getItem('editMood') || 'Happy';
       document.getElementById('entryDetails').value = localStorage.getItem('editDetails') || '';
 
       const submitBtn = diaryForm.querySelector('button[type="submit"]');
       if (submitBtn) submitBtn.textContent = 'Update Diary';
+    } else {
+      if (entryDateInput) {
+        entryDateInput.value = todayStr;
+      }
     }
 
     diaryForm.addEventListener('submit', async (e) => {
@@ -384,7 +391,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const diarySubmitBtn = diaryForm.querySelector('button[type="submit"]');
 
       const title = titleInput ? titleInput.value.trim() : '';
-      const date = dateInput ? dateInput.value : '';
+      const date = dateInput ? dateInput.value : todayStr;
       const mood = moodInput ? moodInput.value : 'Happy';
       const details = contentInput ? contentInput.value.trim() : '';
       const userId = localStorage.getItem('userId');
