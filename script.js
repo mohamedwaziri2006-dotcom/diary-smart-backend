@@ -397,7 +397,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const userId = localStorage.getItem('userId');
 
       if (!userId) {
-        showAlert('error', 'Session Expired!', 'Please login to save your entries.', 'login.html');
+        showAlert('error', 'Session Expired!', 'Please login to save your entries.', 'index.html');
         return;
       }
 
@@ -768,13 +768,10 @@ document.addEventListener('DOMContentLoaded', () => {
               goalTitleInput.value = goal.title || goal.goalText || '';
               goalDateInput.value = goal.date ? goal.date.split('T')[0] : todayFormatted;
               goalDetailsInput.value = goal.details || '';
-              
-              goalFormHeading.textContent = 'Edit Goal.';
               goalSubmitBtn.textContent = 'Update Goal';
+              goalFormHeading.textContent = 'Edit Goal.';
               if (goalCancelEditBtn) goalCancelEditBtn.style.display = 'inline-block';
-              
               window.scrollTo({ top: 0, behavior: 'smooth' });
-              goalTitleInput.focus();
             });
 
             targetArea.appendChild(goalCard);
