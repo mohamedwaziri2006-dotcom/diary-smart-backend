@@ -5,12 +5,12 @@
 // Base URL for your live Render Backend
 const API_BASE_URL = 'https://diary-smart-backend.onrender.com';
 
-// Global helper for alerts from outside DOMContentLoaded if needed
+// Global helper for alerts matching the new Password Update Modal IDs
 function triggerAlert(type, title, message, redirectUrl = null) {
-  const alertModal = document.getElementById('alertModal');
-  const alertTitle = document.getElementById('alertTitle');
-  const alertMessage = document.getElementById('alertMessage');
-  const statusIcon = document.getElementById('statusIcon');
+  const alertModal = document.getElementById('diaryAlertModal');
+  const alertTitle = document.getElementById('diaryAlertTitle');
+  const alertMessage = document.getElementById('diaryAlertMessage');
+  const statusIconCircle = alertModal ? alertModal.querySelector('.status-icon-circle') : null;
 
   if (!alertModal) {
     console.warn("Alert modal element not found in HTML!");
@@ -20,16 +20,15 @@ function triggerAlert(type, title, message, redirectUrl = null) {
 
   window.alertRedirectUrl = redirectUrl;
   
-  if (statusIcon) {
-    statusIcon.className = 'status-icon-wrapper ' + type;
+  if (statusIconCircle) {
     if (type === 'success') {
-      statusIcon.innerHTML = `
-        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      statusIconCircle.innerHTML = `
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="20 6 9 17 4 12"></polyline>
         </svg>`;
     } else {
-      statusIcon.innerHTML = `
-        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      statusIconCircle.innerHTML = `
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="10"></circle>
           <line x1="12" y1="8" x2="12" y2="12"></line>
           <line x1="12" y1="16" x2="12.01" y2="16"></line>
@@ -41,7 +40,6 @@ function triggerAlert(type, title, message, redirectUrl = null) {
   if (alertMessage) alertMessage.textContent = message;
   
   alertModal.classList.add('active');
-  alertModal.style.display = 'flex';
 }
 
 // Global functions for Update & Delete (Diary)
@@ -79,8 +77,8 @@ function editDiary(id, title, date, mood, details) {
 document.addEventListener('DOMContentLoaded', () => {
 
   // Global variables for Alert Modal
-  const alertModal = document.getElementById('alertModal');
-  const alertBtn = document.getElementById('alertBtn');
+  const alertModal = document.getElementById('diaryAlertModal');
+  const alertBtn = document.getElementById('diaryAlertCloseBtn');
 
   function showAlert(type, title, message, redirectUrl = null) {
     triggerAlert(type, title, message, redirectUrl);
@@ -89,9 +87,18 @@ document.addEventListener('DOMContentLoaded', () => {
   if (alertBtn && alertModal) {
     alertBtn.addEventListener('click', function () {
       alertModal.classList.remove('active');
-      alertModal.style.display = 'none';
       if (window.alertRedirectUrl) {
         window.location.href = window.alertRedirectUrl;
+      }
+    });
+
+    // Close when clicking outside the modal box
+    alertModal.addEventListener('click', (e) => {
+      if (e.target === alertModal) {
+        alertModal.classList.remove('active');
+        if (window.alertRedirectUrl) {
+          window.location.href = window.alertRedirectUrl;
+        }
       }
     });
   }
@@ -267,7 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================================================
-  // 5. SETTINGS PAGE LOGIC
+  // 5. SETTINGS PAGE LOGIC (UPDATED WITH PASSWORD UPDATE SUCCESS POP-UP)
   // ==========================================================================
   if (window.location.pathname.includes('settings.html')) {
     const token = localStorage.getItem('token');
@@ -280,7 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
     const confirmPasswordInput = document.getElementById('confirmPassword') || document.getElementById('confirm-password');
-    const saveChangesBtn = document.querySelector('button[type="submit"]') || document.querySelector('.save-btn') || document.getElementById('saveChangesBtn');
+    const settingsForm = document.getElementById('settingsForm');
 
     async function fetchUserProfile() {
       try {
@@ -302,8 +309,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     fetchUserProfile();
 
-    if (saveChangesBtn) {
-      saveChangesBtn.addEventListener('click', async (e) => {
+    if (settingsForm) {
+      settingsForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         const username = nameInput ? nameInput.value.trim() : '';
@@ -316,9 +323,12 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
         }
 
-        let originalSaveBtnText = saveChangesBtn.innerHTML;
-        saveChangesBtn.disabled = true;
-        saveChangesBtn.innerHTML = password ? 'Updating...' : 'Saving...';
+        const saveChangesBtn = settingsForm.querySelector('button[type="submit"]');
+        let originalSaveBtnText = saveChangesBtn ? saveChangesBtn.innerHTML : 'Save Changes';
+        if (saveChangesBtn) {
+          saveChangesBtn.disabled = true;
+          saveChangesBtn.innerHTML = password ? 'Updating...' : 'Saving...';
+        }
 
         try {
           const response = await fetch(`${API_BASE_URL}/api/auth/update-profile`, {
@@ -336,9 +346,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (email) localStorage.setItem('email', email);
             
             if (password) {
-              showAlert('success', 'Updated!', 'Password successfully updated!');
+              showAlert('success', 'Password Updated!', 'Your password has been changed successfully.');
             } else {
-              showAlert('success', 'Updated!', data.message || 'Profile updated successfully!');
+              showAlert('success', 'Profile Updated!', data.message || 'Profile updated successfully!');
             }
 
             if (passwordInput) passwordInput.value = '';
@@ -350,8 +360,10 @@ document.addEventListener('DOMContentLoaded', () => {
           console.error('Profile Update Error:', err);
           showAlert('error', 'Error', 'Network connection error.');
         } finally {
-          saveChangesBtn.disabled = false;
-          saveChangesBtn.innerHTML = originalSaveBtnText;
+          if (saveChangesBtn) {
+            saveChangesBtn.disabled = false;
+            saveChangesBtn.innerHTML = originalSaveBtnText;
+          }
         }
       });
     }
@@ -769,7 +781,7 @@ document.addEventListener('DOMContentLoaded', () => {
               goalDateInput.value = goal.date ? goal.date.split('T')[0] : todayFormatted;
               goalDetailsInput.value = goal.details || '';
               goalSubmitBtn.textContent = 'Update Goal';
-              goalFormHeading.textContent = 'Edit Goal.';
+              goalFormHeading.textContent = 'Update Goal.';
               if (goalCancelEditBtn) goalCancelEditBtn.style.display = 'inline-block';
               window.scrollTo({ top: 0, behavior: 'smooth' });
             });
@@ -777,8 +789,8 @@ document.addEventListener('DOMContentLoaded', () => {
             targetArea.appendChild(goalCard);
           });
         }
-      } catch (error) {
-        console.error('Error fetching goals:', error);
+      } catch (err) {
+        console.error('Error fetching goals:', err);
       }
     }
 
@@ -786,64 +798,3 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 });
-document.addEventListener('DOMContentLoaded', () => {
-  const profileIcon = document.getElementById('profileIcon');
-  const profileModal = document.getElementById('profileModal');
-  const closeProfile = document.getElementById('closeProfile');
-
-  // Kufungua modal ukibonyeza icon ya profile
-  if (profileIcon && profileModal) {
-    profileIcon.addEventListener('click', () => {
-      profileModal.classList.add('active');
-    });
-  }
-
-  // Kufunga modal ukibonyeza kitufe cha "X"
-  if (closeProfile && profileModal) {
-    closeProfile.addEventListener('click', () => {
-      profileModal.classList.remove('active');
-    });
-  }
-
-  // Kufunga modal ukibonyeza nje ya eneo la kadi nyeupe
-  if (profileModal) {
-    profileModal.addEventListener('click', (e) => {
-      if (e.target === profileModal) {
-        profileModal.classList.remove('active');
-      }
-    });
-  }
-});
-// Mfano unapo-submit fomu ya kubadilisha password
-const settingsForm = document.getElementById('settingsForm');
-
-if (settingsForm) {
-  settingsForm.addEventListener('submit', (e) => {
-    e.preventDefault(); // Zuia ukurasa usijirefresh wenyewe
-    
-    // Hapa unaweka mantiki yako ya kuhifadhi (AJAX/Fetch au LocalStorage)
-    
-    // Onyesha pop-up ya mafanikio ya password
-    const modal = document.getElementById('diaryAlertModal');
-    if (modal) {
-      modal.classList.add('active');
-    }
-  });
-}
-
-// Kufunga pop-up ukibonyeza kitufe cha OK
-const closeBtn = document.getElementById('diaryAlertCloseBtn');
-const modalOverlay = document.getElementById('diaryAlertModal');
-
-if (closeBtn && modalOverlay) {
-  closeBtn.addEventListener('click', () => {
-    modalOverlay.classList.remove('active');
-  });
-
-  // Kufunga ukibonyeza nje ya kadi
-  modalOverlay.addEventListener('click', (e) => {
-    if (e.target === modalOverlay) {
-      modalOverlay.classList.remove('active');
-    }
-  });
-}
