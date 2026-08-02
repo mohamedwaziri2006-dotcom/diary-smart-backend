@@ -786,3 +786,31 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 });
+document.addEventListener('DOMContentLoaded', () => {
+  const profileIcon = document.getElementById('profileIcon');
+  const profileModal = document.getElementById('profileModal');
+  const closeProfile = document.getElementById('closeProfile');
+
+  // Kufungua modal ukibonyeza icon ya profile
+  if (profileIcon && profileModal) {
+    profileIcon.addEventListener('click', () => {
+      profileModal.classList.add('active');
+    });
+  }
+
+  // Kufunga modal ukibonyeza kitufe cha "X"
+  if (closeProfile && profileModal) {
+    closeProfile.addEventListener('click', () => {
+      profileModal.classList.remove('active');
+    });
+  }
+
+  // Kufunga modal ukibonyeza nje ya eneo la kadi nyeupe
+  if (profileModal) {
+    profileModal.addEventListener('click', (e) => {
+      if (e.target === profileModal) {
+        profileModal.classList.remove('active');
+      }
+    });
+  }
+});
