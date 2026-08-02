@@ -316,6 +316,10 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
         }
 
+        let originalSaveBtnText = saveChangesBtn.innerHTML;
+        saveChangesBtn.disabled = true;
+        saveChangesBtn.innerHTML = password ? 'Updating...' : 'Saving...';
+
         try {
           const response = await fetch(`${API_BASE_URL}/api/auth/update-profile`, {
             method: 'PUT',
@@ -330,7 +334,13 @@ document.addEventListener('DOMContentLoaded', () => {
           if (response.ok) {
             if (username) localStorage.setItem('username', username);
             if (email) localStorage.setItem('email', email);
-            showAlert('success', 'Updated!', data.message || 'Profile updated successfully!');
+            
+            if (password) {
+              showAlert('success', 'Updated!', 'Password successfully updated!');
+            } else {
+              showAlert('success', 'Updated!', data.message || 'Profile updated successfully!');
+            }
+
             if (passwordInput) passwordInput.value = '';
             if (confirmPasswordInput) confirmPasswordInput.value = '';
           } else {
@@ -339,6 +349,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (err) {
           console.error('Profile Update Error:', err);
           showAlert('error', 'Error', 'Network connection error.');
+        } finally {
+          saveChangesBtn.disabled = false;
+          saveChangesBtn.innerHTML = originalSaveBtnText;
         }
       });
     }
