@@ -5,12 +5,12 @@
 // Base URL for your live Render Backend
 const API_BASE_URL = 'https://diary-smart-backend.onrender.com';
 
-// Global helper for alerts matching the Modal IDs
+// Global helper for alerts from outside DOMContentLoaded if needed
 function triggerAlert(type, title, message, redirectUrl = null) {
-  const alertModal = document.getElementById('diaryAlertModal');
-  const alertTitle = document.getElementById('diaryAlertTitle');
-  const alertMessage = document.getElementById('diaryAlertMessage');
-  const statusIconCircle = alertModal ? alertModal.querySelector('.status-icon-circle') : null;
+  const alertModal = document.getElementById('alertModal');
+  const alertTitle = document.getElementById('alertTitle');
+  const alertMessage = document.getElementById('alertMessage');
+  const statusIcon = document.getElementById('statusIcon');
 
   if (!alertModal) {
     console.warn("Alert modal element not found in HTML!");
@@ -20,15 +20,16 @@ function triggerAlert(type, title, message, redirectUrl = null) {
 
   window.alertRedirectUrl = redirectUrl;
   
-  if (statusIconCircle) {
+  if (statusIcon) {
+    statusIcon.className = 'status-icon-wrapper ' + type;
     if (type === 'success') {
-      statusIconCircle.innerHTML = `
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      statusIcon.innerHTML = `
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="20 6 9 17 4 12"></polyline>
         </svg>`;
     } else {
-      statusIconCircle.innerHTML = `
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      statusIcon.innerHTML = `
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="10"></circle>
           <line x1="12" y1="8" x2="12" y2="12"></line>
           <line x1="12" y1="16" x2="12.01" y2="16"></line>
@@ -40,6 +41,7 @@ function triggerAlert(type, title, message, redirectUrl = null) {
   if (alertMessage) alertMessage.textContent = message;
   
   alertModal.classList.add('active');
+  alertModal.style.display = 'flex';
 }
 
 // Global functions for Update & Delete (Diary)
@@ -77,32 +79,19 @@ function editDiary(id, title, date, mood, details) {
 document.addEventListener('DOMContentLoaded', () => {
 
   // Global variables for Alert Modal
-  const alertModal = document.getElementById('diaryAlertModal');
-  const alertBtn = document.getElementById('diaryAlertCloseBtn');
+  const alertModal = document.getElementById('alertModal');
+  const alertBtn = document.getElementById('alertBtn');
+
+  function showAlert(type, title, message, redirectUrl = null) {
+    triggerAlert(type, title, message, redirectUrl);
+  }
 
   if (alertBtn && alertModal) {
-    // Remove any existing listeners by cloning or direct handling
-    alertBtn.replaceWith(alertBtn.cloneNode(true));
-    const freshAlertBtn = document.getElementById('diaryAlertCloseBtn');
-
-    freshAlertBtn.addEventListener('click', function (e) {
-      e.preventDefault();
+    alertBtn.addEventListener('click', function () {
       alertModal.classList.remove('active');
+      alertModal.style.display = 'none';
       if (window.alertRedirectUrl) {
-        const targetUrl = window.alertRedirectUrl;
-        window.alertRedirectUrl = null;
-        window.location.href = targetUrl;
-      }
-    });
-
-    alertModal.addEventListener('click', (e) => {
-      if (e.target === alertModal) {
-        alertModal.classList.remove('active');
-        if (window.alertRedirectUrl) {
-          const targetUrl = window.alertRedirectUrl;
-          window.alertRedirectUrl = null;
-          window.location.href = targetUrl;
-        }
+        window.location.href = window.alertRedirectUrl;
       }
     });
   }
@@ -142,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const password = passwordInput ? passwordInput.value.trim() : '';
 
       if (!email || !password) {
-        triggerAlert('error', 'Login Failed!', 'Please fill in both email and password.');
+        showAlert('error', 'Login Failed!', 'Please fill in both email and password.');
         return;
       }
 
@@ -169,9 +158,9 @@ document.addEventListener('DOMContentLoaded', () => {
           localStorage.setItem('username', data.user.username);
           localStorage.setItem('email', data.user.email || email);
 
-          triggerAlert('success', 'Welcome Back!', 'Login successful.', 'diary.html');
+          showAlert('success', 'Welcome Back!', 'Login successful.', 'diary.html');
         } else {
-          triggerAlert('error', 'Login Failed!', data.msg || data.message || 'Invalid email or password.');
+          showAlert('error', 'Login Failed!', data.msg || data.message || 'Invalid email or password.');
           if (submitBtn) {
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalBtnText;
@@ -179,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       } catch (error) {
         console.error('Login Error:', error);
-        triggerAlert('error', 'Network Error!', 'Unable to connect to the server.');
+        showAlert('error', 'Network Error!', 'Unable to connect to the server.');
         if (submitBtn) {
           submitBtn.disabled = false;
           submitBtn.innerHTML = originalBtnText;
@@ -232,12 +221,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const confirmPassword = confirmPasswordInput ? confirmPasswordInput.value : '';
 
       if (!username || !email || !password) {
-        triggerAlert('error', 'Registration Failed!', 'Please fill in all required fields.');
+        showAlert('error', 'Registration Failed!', 'Please fill in all required fields.');
         return;
       }
 
       if (password !== confirmPassword) {
-        triggerAlert('error', 'Registration Failed!', 'Passwords do not match.');
+        showAlert('error', 'Registration Failed!', 'Passwords do not match.');
         return;
       }
 
@@ -258,9 +247,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await response.json();
 
         if (response.ok) {
-          triggerAlert('success', 'Registration Complete!', data.msg || data.message || 'Account created successfully!', 'index.html');
+          showAlert('success', 'Registration Complete!', data.msg || data.message || 'Account created successfully!', 'index.html');
         } else {
-          triggerAlert('error', 'Registration Failed!', data.msg || data.message || 'Error creating account.');
+          showAlert('error', 'Registration Failed!', data.msg || data.message || 'Error creating account.');
           if (regSubmitBtn) {
             regSubmitBtn.disabled = false;
             regSubmitBtn.innerHTML = originalRegBtnText;
@@ -268,7 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       } catch (error) {
         console.error('Registration Error:', error);
-        triggerAlert('error', 'Network Error!', 'Unable to connect to the server.');
+        showAlert('error', 'Network Error!', 'Unable to connect to the server.');
         if (regSubmitBtn) {
           regSubmitBtn.disabled = false;
           regSubmitBtn.innerHTML = originalRegBtnText;
@@ -291,7 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
     const confirmPasswordInput = document.getElementById('confirmPassword') || document.getElementById('confirm-password');
-    const settingsForm = document.getElementById('settingsForm');
+    const saveChangesBtn = document.querySelector('button[type="submit"]') || document.querySelector('.save-btn') || document.getElementById('saveChangesBtn');
 
     async function fetchUserProfile() {
       try {
@@ -313,8 +302,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     fetchUserProfile();
 
-    if (settingsForm) {
-      settingsForm.addEventListener('submit', async (e) => {
+    if (saveChangesBtn) {
+      saveChangesBtn.addEventListener('click', async (e) => {
         e.preventDefault();
 
         const username = nameInput ? nameInput.value.trim() : '';
@@ -323,15 +312,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const confirmPassword = confirmPasswordInput ? confirmPasswordInput.value : '';
 
         if (password && password !== confirmPassword) {
-          triggerAlert('error', 'Validation Error', 'New passwords do not match.');
+          showAlert('error', 'Validation Error', 'New passwords do not match.');
           return;
-        }
-
-        const saveChangesBtn = settingsForm.querySelector('button[type="submit"]');
-        let originalSaveBtnText = saveChangesBtn ? saveChangesBtn.innerHTML : 'Save Changes';
-        if (saveChangesBtn) {
-          saveChangesBtn.disabled = true;
-          saveChangesBtn.innerHTML = password ? 'Updating...' : 'Saving...';
         }
 
         try {
@@ -348,26 +330,15 @@ document.addEventListener('DOMContentLoaded', () => {
           if (response.ok) {
             if (username) localStorage.setItem('username', username);
             if (email) localStorage.setItem('email', email);
-            
-            if (password) {
-              triggerAlert('success', 'Password Updated!', 'Your password has been changed successfully.');
-            } else {
-              triggerAlert('success', 'Profile Updated!', data.message || 'Profile updated successfully!');
-            }
-
+            showAlert('success', 'Updated!', data.message || 'Profile updated successfully!');
             if (passwordInput) passwordInput.value = '';
             if (confirmPasswordInput) confirmPasswordInput.value = '';
           } else {
-            triggerAlert('error', 'Update Failed', data.message || 'Failed to update profile.');
+            showAlert('error', 'Update Failed', data.message || 'Failed to update profile.');
           }
         } catch (err) {
           console.error('Profile Update Error:', err);
-          triggerAlert('error', 'Error', 'Network connection error.');
-        } finally {
-          if (saveChangesBtn) {
-            saveChangesBtn.disabled = false;
-            saveChangesBtn.innerHTML = originalSaveBtnText;
-          }
+          showAlert('error', 'Error', 'Network connection error.');
         }
       });
     }
@@ -379,22 +350,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const diaryForm = document.getElementById('diaryForm');
   if (diaryForm && window.location.pathname.includes('diary.html')) {
     
-    const entryDateInput = document.getElementById('entryDate');
-    const todayStr = new Date().toISOString().split('T')[0];
-
     const editId = localStorage.getItem('editId');
     if (editId) {
       document.getElementById('entryTitle').value = localStorage.getItem('editTitle') || '';
-      if (entryDateInput) entryDateInput.value = localStorage.getItem('editDate') ? localStorage.getItem('editDate').split('T')[0] : todayStr;
+      document.getElementById('entryDate').value = localStorage.getItem('editDate') || '';
       document.getElementById('entryMood').value = localStorage.getItem('editMood') || 'Happy';
       document.getElementById('entryDetails').value = localStorage.getItem('editDetails') || '';
 
       const submitBtn = diaryForm.querySelector('button[type="submit"]');
       if (submitBtn) submitBtn.textContent = 'Update Diary';
-    } else {
-      if (entryDateInput) {
-        entryDateInput.value = todayStr;
-      }
     }
 
     diaryForm.addEventListener('submit', async (e) => {
@@ -407,18 +371,18 @@ document.addEventListener('DOMContentLoaded', () => {
       const diarySubmitBtn = diaryForm.querySelector('button[type="submit"]');
 
       const title = titleInput ? titleInput.value.trim() : '';
-      const date = dateInput ? dateInput.value : todayStr;
+      const date = dateInput ? dateInput.value : '';
       const mood = moodInput ? moodInput.value : 'Happy';
       const details = contentInput ? contentInput.value.trim() : '';
       const userId = localStorage.getItem('userId');
 
       if (!userId) {
-        triggerAlert('error', 'Session Expired!', 'Please login to save your entries.', 'index.html');
+        showAlert('error', 'Session Expired!', 'Please login to save your entries.', 'login.html');
         return;
       }
 
       if (!title || !details) {
-        triggerAlert('error', 'Validation Error', 'Please fill in both title and memory details.');
+        showAlert('error', 'Validation Error', 'Please fill in both title and memory details.');
         return;
       }
 
@@ -452,9 +416,9 @@ document.addEventListener('DOMContentLoaded', () => {
           localStorage.removeItem('editMood');
           localStorage.removeItem('editDetails');
 
-          triggerAlert('success', 'Saved!', 'Your diary entry has been successfully saved!', 'tasks.html');
+          showAlert('success', 'Saved!', 'Your diary entry has been successfully saved!', 'tasks.html');
         } else {
-          triggerAlert('error', 'Error!', data.message || data.error || 'Failed to save entry.');
+          showAlert('error', 'Error!', data.message || data.error || 'Failed to save entry.');
           if (diarySubmitBtn) {
             diarySubmitBtn.disabled = false;
             diarySubmitBtn.innerHTML = originalDiaryBtnText;
@@ -462,7 +426,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       } catch (error) {
         console.error('Diary Save/Update Error:', error);
-        triggerAlert('error', 'Network Error!', 'Failed to connect to backend database.');
+        showAlert('error', 'Network Error!', 'Failed to connect to backend database.');
         if (diarySubmitBtn) {
           diarySubmitBtn.disabled = false;
           diarySubmitBtn.innerHTML = originalDiaryBtnText;
@@ -648,12 +612,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const userId = localStorage.getItem('userId');
 
         if (!userId) {
-          triggerAlert('error', 'Session Expired!', 'Please login to save goals.', 'index.html');
+          showAlert('error', 'Session Expired!', 'Please login to save goals.', 'index.html');
           return;
         }
 
         if (!title) {
-          triggerAlert('error', 'Validation Error', 'Please enter a goal title.');
+          showAlert('error', 'Validation Error', 'Please enter a goal title.');
           return;
         }
 
@@ -685,11 +649,11 @@ document.addEventListener('DOMContentLoaded', () => {
             fetchGoals();
           } else {
             const errData = await response.json();
-            triggerAlert('error', 'Failed', errData.message || 'Failed to save goal.');
+            showAlert('error', 'Failed', errData.message || 'Failed to save goal.');
           }
         } catch (error) {
           console.error('Goal Save Error:', error);
-          triggerAlert('error', 'Error', 'Network connection error.');
+          showAlert('error', 'Error', 'Network connection error.');
         } finally {
           goalSubmitBtn.disabled = false;
           goalSubmitBtn.textContent = originalBtnText;
@@ -784,17 +748,20 @@ document.addEventListener('DOMContentLoaded', () => {
               goalTitleInput.value = goal.title || goal.goalText || '';
               goalDateInput.value = goal.date ? goal.date.split('T')[0] : todayFormatted;
               goalDetailsInput.value = goal.details || '';
+              
+              goalFormHeading.textContent = 'Edit Goal.';
               goalSubmitBtn.textContent = 'Update Goal';
-              goalFormHeading.textContent = 'Update Goal.';
               if (goalCancelEditBtn) goalCancelEditBtn.style.display = 'inline-block';
+              
               window.scrollTo({ top: 0, behavior: 'smooth' });
+              goalTitleInput.focus();
             });
 
             targetArea.appendChild(goalCard);
           });
         }
-      } catch (err) {
-        console.error('Error fetching goals:', err);
+      } catch (error) {
+        console.error('Error fetching goals:', error);
       }
     }
 
