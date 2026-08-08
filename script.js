@@ -489,7 +489,12 @@ document.addEventListener('DOMContentLoaded', () => {
           containerArea.innerHTML = '';
 
           if (tasks.length > 0) {
-            tasks.sort((a, b) => new Date(b.date) - new Date(a.date));
+            // Updated sorting logic: newest date first, then newest creation timestamp first
+            tasks.sort((a, b) => {
+              const dateDiff = new Date(b.date) - new Date(a.date);
+              if (dateDiff !== 0) return dateDiff;
+              return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+            });
 
             const groupsMap = new Map();
             tasks.forEach(task => {
@@ -777,12 +782,11 @@ document.addEventListener('DOMContentLoaded', () => {
             targetArea.appendChild(goalCard);
           });
         }
-      } catch (error) {
-        console.error('Error fetching goals:', error);
+      } catch (err) {
+        console.error('Error fetching goals:', err);
       }
     }
 
     fetchGoals();
   }
-
 });
