@@ -7,7 +7,7 @@ require('dotenv').config();
 // Kuagiza Routes (Njia za Auth, Diary, na Goals)
 const authRoutes = require('./routes/auth');
 const diaryRoutes = require('./routes/diary');
-const goalsRoutes = require('./routes/goals'); // <--- Njia mpya ya Goals
+const goalsRoutes = require('./routes/goals');
 
 const app = express();
 
@@ -15,26 +15,26 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// Hii inaiambia Server ikubali kusoma mafaili yote ya Frontend (HTML, CSS, JS) kwa usahihi kupitia path kamili
+// 1. Kusoma mafaili yote ya Static (HTML, CSS, JS, sw.js, manifest.json, na picha za icons)
 app.use(express.static(path.join(__dirname)));
 
-// Kuunganisha Database ya MongoDB Atlas
+// 2. Kuunganisha Database ya MongoDB Atlas
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ Database ya MongoDB imejiunga kikamilifu!'))
   .catch((err) => console.error('❌ Tatizo la kuunganisha Database:', err));
 
-// Njia za API (API Endpoints)
+// 3. Njia za API (API Endpoints)
 app.use('/api/auth', authRoutes);
 app.use('/api/diary', diaryRoutes);
-app.use('/api/goals', goalsRoutes); // <--- Kusajili API ya Goals kwenye Server
+app.use('/api/goals', goalsRoutes);
 
 // Test Route ya API
 app.get('/api/status', (req, res) => {
   res.send('API ya DIARY SMART ipo hewani na inafanya kazi!');
 });
 
-// Njia ya mwisho kabisa kwa ajili ya kusoma index.html na kuruhusu page zote za frontend zifunguke
-app.get(/.*/, (req, res) => {
+// 4. Njia ya kurudisha index.html kwa ajili ya Frontend routing (Iwekwe mwisho kabisa baada ya API na static files)
+app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
