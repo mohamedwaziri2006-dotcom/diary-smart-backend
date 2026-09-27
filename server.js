@@ -32,7 +32,14 @@ app.use('/api/goals', goalsRoutes);
 app.get('/api/status', (req, res) => {
   res.send('API ya DIARY SMART ipo hewani na inafanya kazi!');
 });
+// Njia maalum za kulazimisha picha zisomeke moja kwa moja bila kupitia index.html
+app.get('/icon-192.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'icon-192.png'));
+});
 
+app.get('/icon-512.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'icon-512.png'));
+});
 // 4. Njia ya kurudisha index.html kwa ajili ya Frontend routing (Ipo chini kabisa, iko sahihi kabisa)
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
