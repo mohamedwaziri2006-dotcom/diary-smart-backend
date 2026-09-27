@@ -10,12 +10,12 @@
   "theme_color": "#ffffff",
   "icons": [
     {
-      "src": "https://github.com/mohamedwaziri2006-dotcom/diary-smart-backend/blob/fbb9f5d029511c0eeb49173fbb47e97113467d19/icon-192.png",
+      "src": "https://raw.githubusercontent.com/mohamedwaziri2006-dotcom/diary-smart-backend/main/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "https://github.com/mohamedwaziri2006-dotcom/diary-smart-backend/blob/fbb9f5d029511c0eeb49173fbb47e97113467d19/icon-512.png",
+      "src": "https://raw.githubusercontent.com/mohamedwaziri2006-dotcom/diary-smart-backend/main/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
