@@ -15,7 +15,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// 1. Kusoma mafaili yote ya Static (HTML, CSS, JS, sw.js, manifest.json, na picha za icons)
+// 1. Kusoma mafaili yote ya Static kwa usahihi kabisa kutoka kwenye root folder
 app.use(express.static(path.join(__dirname)));
 
 // 2. Kuunganisha Database ya MongoDB Atlas
@@ -33,7 +33,7 @@ app.get('/api/status', (req, res) => {
   res.send('API ya DIARY SMART ipo hewani na inafanya kazi!');
 });
 
-// 4. Njia ya kurudisha index.html kwa ajili ya Frontend routing (Iwekwe mwisho kabisa baada ya API na static files)
+// 4. Njia ya kurudisha index.html kwa ajili ya Frontend routing (Ipo chini kabisa, iko sahihi kabisa)
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
