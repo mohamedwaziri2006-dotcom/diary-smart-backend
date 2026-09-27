@@ -15,8 +15,10 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// 1. Kusoma mafaili yote ya Static kwa usahihi kabisa kutoka kwenye root folder
-app.use(express.static(path.join(__dirname)));
+// 1. Ruhusu mafaili maalum ya static yatoshee moja kwa moja bila kupitia index.html
+app.use(express.static(path.join(__dirname), {
+  index: false // Inazuia server kutoa index.html kiotomatiki kama ikishindwa kupata faili fulani
+}));
 
 // 2. Kuunganisha Database ya MongoDB Atlas
 mongoose.connect(process.env.MONGO_URI)
@@ -32,16 +34,13 @@ app.use('/api/goals', goalsRoutes);
 app.get('/api/status', (req, res) => {
   res.send('API ya DIARY SMART ipo hewani na inafanya kazi!');
 });
-// Njia maalum za kulazimisha picha zisomeke moja kwa moja bila kupitia index.html
-app.get('/icon-192.png', (req, res) => {
-  res.sendFile(path.join(__dirname, 'icon-192.png'));
-});
 
-app.get('/icon-512.png', (req, res) => {
-  res.sendFile(path.join(__dirname, 'icon-512.png'));
-});
-// 4. Njia ya kurudisha index.html kwa ajili ya Frontend routing (Ipo chini kabisa, iko sahihi kabisa)
-app.get('*', (req, res) => {
+// 4. Njia ya kurudisha index.html kwa ajili ya Frontend routing (Iwe mwisho kabisa)
+app.get('*', (req, res, next) => {
+  // Kama ombi linahusu picha au api, lisipelekwe kwenye index.html
+  if (req.path.endsWith('.png') || req.path.startsWith('/api')) {
+    return next();
+  }
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
