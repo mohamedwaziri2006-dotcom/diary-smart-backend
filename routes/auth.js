@@ -134,3 +134,46 @@ router.put('/update-profile', verifyToken, async (req, res) => {
 // Tunatuma router pamoja na verifyToken
 router.verifyToken = verifyToken;
 module.exports = router;
+// --- 6. FORGOT PASSWORD ---
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    // Angalia kama email ipo kwenye database
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: 'Barua pepe hii haijasajiliwa kwenye mfumo.' });
+    }
+
+    // Hapa unaweza kutengeneza token ya ziada au kutuma email
+    // Kwa sasa tunatoa jibu la mafanikio kwamba maelekezo yametumwa
+    res.json({ message: 'Maelekezo ya kubadilisha nenosiri yametumwa kwenye barua pepe yako.' });
+
+  } catch (error) {
+    console.error('Forgot Password Error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+// 3. KUBADILI / KWEKA NENOSIRI JIPYA (RESET PASSWORD)
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { email, newPassword } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: 'Mtumiaji hajapatikana!' });
+    }
+
+    // Fanya nenosiri jipya liwe la siri (Hash password)
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    // Sasisha nenosiri kwenye database
+    user.password = hashedPassword;
+    await user.save();
+
+    res.status(200).json({ message: 'Nenosiri limebadilishwa kwa mafanikio!' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});

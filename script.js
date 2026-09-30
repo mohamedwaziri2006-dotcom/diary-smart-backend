@@ -489,7 +489,6 @@ document.addEventListener('DOMContentLoaded', () => {
           containerArea.innerHTML = '';
 
           if (tasks.length > 0) {
-            // Updated sorting logic: newest date first, then newest creation timestamp first
             tasks.sort((a, b) => {
               const dateDiff = new Date(b.date) - new Date(a.date);
               if (dateDiff !== 0) return dateDiff;
@@ -769,28 +768,26 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             goalCard.querySelector('.update-goal-btn').addEventListener('click', () => {
-              editGoalIdField.value = goal._id;
               goalTitleInput.value = goal.title || goal.goalText || '';
               goalDateInput.value = goal.date ? goal.date.split('T')[0] : todayFormatted;
               goalDetailsInput.value = goal.details || '';
+              editGoalIdField.value = goal._id;
+              
               goalSubmitBtn.textContent = 'Update Goal';
               goalFormHeading.textContent = 'Edit Goal.';
               if (goalCancelEditBtn) goalCancelEditBtn.style.display = 'inline-block';
+              
               window.scrollTo({ top: 0, behavior: 'smooth' });
             });
 
             targetArea.appendChild(goalCard);
           });
         }
-      } catch (err) {
-        console.error('Error fetching goals:', err);
+      } catch (error) {
+        console.error('Error fetching goals:', error);
       }
     }
 
     fetchGoals();
   }
 });
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js')
-    .then(() => console.log('Service Worker Registered'));
-}
