@@ -36,7 +36,7 @@ app.get('/api/status', (req, res) => {
 });
 
 // 4. Njia ya kurudisha index.html kwa ajili ya Frontend routing (Iwe mwisho kabisa)
-app.get('*', (req, res, next) => {
+app.get('/*', (req, res, next) => {
   // Kama ombi linahusu picha, sitemap (xml), au api, lisipelekwe kwenye index.html
   if (req.path.endsWith('.png') || req.path.endsWith('.xml') || req.path.startsWith('/api')) {
     return next();
