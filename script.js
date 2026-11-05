@@ -772,29 +772,32 @@ document.addEventListener('DOMContentLoaded', () => {
               goalDateInput.value = goal.date ? goal.date.split('T')[0] : todayFormatted;
               goalDetailsInput.value = goal.details || '';
               editGoalIdField.value = goal._id;
-              
               goalSubmitBtn.textContent = 'Update Goal';
               goalFormHeading.textContent = 'Edit Goal.';
               if (goalCancelEditBtn) goalCancelEditBtn.style.display = 'inline-block';
-              
               window.scrollTo({ top: 0, behavior: 'smooth' });
             });
 
             targetArea.appendChild(goalCard);
           });
         }
-      } catch (error) {
-        console.error('Error fetching goals:', error);
+      } catch (err) {
+        console.error('Error fetching goals:', err);
       }
     }
 
     fetchGoals();
   }
+
+  // ==========================================================================
+  // 10. SERVICE WORKER REGISTRATION (ADDED FOR PWA OFFLINE SUPPORT)
+  // ==========================================================================
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then((reg) => console.log('Service Worker registered successfully:', reg.scope))
+        .catch((err) => console.log('Service Worker registration failed:', err));
+    });
+  }
+
 });
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then((reg) => console.log('Service Worker imesajiliwa mafanikio:', reg.scope))
-      .catch((err) => console.log('Imeshindwa kusajili Service Worker:', err));
-  });
-}
