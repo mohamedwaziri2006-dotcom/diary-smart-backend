@@ -791,3 +791,10 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchGoals();
   }
 });
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then((reg) => console.log('Service Worker imesajiliwa mafanikio:', reg.scope))
+      .catch((err) => console.log('Imeshindwa kusajili Service Worker:', err));
+  });
+}
