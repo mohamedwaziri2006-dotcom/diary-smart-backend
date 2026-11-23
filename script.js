@@ -604,6 +604,86 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================================================
+  // 7.5 FETCH & DISPLAY ALL ATTACHMENTS (FOR ATTACHMENTS.HTML)
+  // ==========================================================================
+  if (window.location.pathname.includes('attachments.html')) {
+    const container = document.getElementById('attachmentsContainer') || document.querySelector('main') || document.body;
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      window.location.href = 'index.html';
+      return;
+    }
+
+    async function fetchAllAttachments() {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/diary/my-entries`, {
+          method: 'GET',
+          headers: {
+            'Authorization': 'Bearer ' + token
+          }
+        });
+
+        const tasks = await response.json();
+
+        if (response.ok && Array.isArray(tasks)) {
+          const attachedEntries = tasks.filter(task => task.fileUrl);
+
+          let gridArea = document.getElementById('attachmentsGridArea');
+          if (!gridArea) {
+            gridArea = document.createElement('div');
+            gridArea.id = 'attachmentsGridArea';
+            gridArea.style.cssText = 'max-width: 1100px; margin: 20px auto; padding: 0 20px;';
+            container.appendChild(gridArea);
+          }
+
+          gridArea.innerHTML = '';
+
+          if (attachedEntries.length > 0) {
+            const titleHeader = document.createElement('h3');
+            titleHeader.textContent = `All Attachments (${attachedEntries.length})`;
+            titleHeader.style.cssText = 'margin-bottom: 20px; color: #1e293b; font-size: 1.2rem;';
+            gridArea.appendChild(titleHeader);
+
+            const cardsGrid = document.createElement('div');
+            cardsGrid.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;';
+
+            attachedEntries.forEach(task => {
+              const card = document.createElement('div');
+              card.style.cssText = 'background: #fff; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-between;';
+
+              const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(task.fileUrl);
+              let previewHtml = isImage 
+                ? `<img src="${task.fileUrl}" alt="Attachment" style="width: 100%; height: 160px; object-fit: cover; border-radius: 8px; margin-bottom: 10px;" />`
+                : `<div style="height: 100px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; border-radius: 8px; margin-bottom: 10px; color: #0284c7; font-weight: 600;"><i class="fa-solid fa-file-pdf" style="font-size: 2rem;"></i> Document File</div>`;
+
+              card.innerHTML = `
+                <div>
+                  ${previewHtml}
+                  <h4 style="margin: 0 0 6px 0; font-size: 1rem; color: #0f172a;">${task.title}</h4>
+                  <p style="margin: 0 0 10px 0; font-size: 0.8rem; color: #64748b;">Date: ${task.date ? task.date.split('T')[0] : 'N/A'}</p>
+                </div>
+                <a href="${task.fileUrl}" target="_blank" style="display: block; text-align: center; padding: 8px; background: #0284c7; color: white; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 600;">
+                  Open File
+                </a>
+              `;
+              cardsGrid.appendChild(card);
+            });
+
+            gridArea.appendChild(cardsGrid);
+          } else {
+            gridArea.innerHTML = '<div style="text-align: center; color: #64748b; padding: 50px; font-size: 1rem;">Hakuna mafaili yoyote yaliyowekwa kwenye diary zako bado.</div>';
+          }
+        }
+      } catch (err) {
+        console.error('Error loading attachments:', err);
+      }
+    }
+
+    fetchAllAttachments();
+  }
+
+  // ==========================================================================
   // 8. PROFILE MODAL & USER INFO HANDLING
   // ==========================================================================
   const profileIcon = document.getElementById('profileIcon');
@@ -785,15 +865,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 fetchGoals();
               } catch (err) {
-                console.error('Error updating status:', err);
+                console.error('Toggle Goal Error:', err);
               }
+            });
+
+            goalCard.querySelector('.update-goal-btn').addEventListener('click', () => {
+              if (editGoalIdField) editGoalIdField.value = goal._id;
+              if (goalTitleInput) goalTitleInput.value = goal.title || goal.goalText || '';
+              if (goalDateInput) goalDateInput.value = goal.date ? goal.date.split('T')[0] : todayFormatted;
+              if (goalDetailsInput) goalDetailsInput.value = goal.details || '';
+              if (goalSubmitBtn) goalSubmitBtn.textContent = 'Update Goal';
+              if (goalFormHeading) goalFormHeading.textContent = 'Edit Goal.';
+              if (goalCancelEditBtn) goalCancelEditBtn.style.display = 'inline-block';
+              window.scrollTo({ top: 0, behavior: 'smooth' });
             });
 
             goalCard.querySelector('.delete-goal-btn').addEventListener('click', async () => {
               try {
                 const res = await fetch(`${API_BASE_URL}/api/goals/delete/${goal._id}`, {
                   method: 'DELETE',
-                  headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('token') || '') }
+                  headers: {
+                    'Authorization': 'Bearer ' + (localStorage.getItem('token') || '')
+                  }
                 });
                 if (res.ok) fetchGoals();
               } catch (err) {
@@ -801,22 +894,11 @@ document.addEventListener('DOMContentLoaded', () => {
               }
             });
 
-            goalCard.querySelector('.update-goal-btn').addEventListener('click', () => {
-              goalTitleInput.value = goal.title || goal.goalText || '';
-              if (goalDateInput) goalDateInput.value = goal.date ? goal.date.split('T')[0] : todayFormatted;
-              if (goalDetailsInput) goalDetailsInput.value = goal.details || '';
-              if (editGoalIdField) editGoalIdField.value = goal._id;
-              if (goalSubmitBtn) goalSubmitBtn.textContent = 'Update Goal';
-              if (goalFormHeading) goalFormHeading.textContent = 'Edit Goal.';
-              if (goalCancelEditBtn) goalCancelEditBtn.style.display = 'inline-block';
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-
             targetArea.appendChild(goalCard);
           });
         }
       } catch (err) {
-        console.error('Error fetching goals:', err);
+        console.error('Fetch Goals Error:', err);
       }
     }
 
