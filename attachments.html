@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diary Attachments - Diary Smart</title>
+  <!-- Viunganishi vya CSS za nje -->
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="dashboard.css">
+  <link rel="icon" type="image/png" href="icon-192.png">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- FontAwesome kwa ajili ya Icon -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <div class="app-container">
+    <div class="main-wrapper">
+      
+      <!-- Top Header Nav -->
+      <header class="top-nav attachments-header">
+        <div>
+          <h2 class="page-title">My Attachments.</h2>
+        </div>
+        <a href="tasks.html" class="back-to-diaries-link">
+          <i class="fa-solid fa-arrow-left"></i> Back to Diaries
+        </a>
+      </header>
+
+      <!-- Main Content Area for Files -->
+      <main class="dashboard-content">
+        <div class="attachments-container">
+          <div id="attachmentsGrid" class="attachments-grid">
+            <!-- Hapa ndipo mafaili yatakapopangiliwa na JavaScript -->
+            <p class="loading-text">Inapakia mafaili yako...</p>
+          </div>
+        </div>
+      </main>
+
+    </div>
+  </div>
+
+  <!-- Uunganisho wa JavaScript ya nje -->
+  <script src="script.js"></script>
+</body>
+</html>
