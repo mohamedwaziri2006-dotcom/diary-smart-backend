@@ -76,7 +76,7 @@ function editDiary(id, title, date, mood, details) {
   window.location.href = 'diary.html';
 }
 
-// Global function for handling file selection display name
+// Global function for handling file selection display name (Fixed in Global Scope)
 function handleFileSelect(input) {
   const fileNameDisplay = document.getElementById('fileNameDisplay');
   if (!fileNameDisplay) return;
@@ -776,37 +776,26 @@ document.addEventListener('DOMContentLoaded', () => {
             body: JSON.stringify({ userId, title, date, details })
           });
 
+          const data = await response.json();
+
           if (response.ok) {
+            showAlert('success', 'Saved!', 'Goal saved successfully!');
             goalEntryForm.reset();
             editGoalIdField.value = '';
-            goalSubmitBtn.textContent = 'Save Goal';
-            goalFormHeading.textContent = 'Set New Goal.';
+            if (goalFormHeading) goalFormHeading.textContent = 'Add New Goal';
             if (goalCancelEditBtn) goalCancelEditBtn.style.display = 'none';
-            goalDateInput.value = new Date().toISOString().split('T')[0];
-
+            if (goalDateInput) goalDateInput.value = todayFormatted;
             fetchGoals();
           } else {
-            const errData = await response.json();
-            showAlert('error', 'Failed', errData.message || 'Failed to save goal.');
+            showAlert('error', 'Error!', data.message || 'Failed to save goal.');
           }
-        } catch (error) {
-          console.error('Goal Save Error:', error);
+        } catch (err) {
+          console.error('Goal Save Error:', err);
           showAlert('error', 'Error', 'Network connection error.');
         } finally {
           goalSubmitBtn.disabled = false;
           goalSubmitBtn.textContent = originalBtnText;
         }
-      });
-    }
-
-    if (goalCancelEditBtn) {
-      goalCancelEditBtn.addEventListener('click', () => {
-        goalEntryForm.reset();
-        editGoalIdField.value = '';
-        goalSubmitBtn.textContent = 'Save Goal';
-        goalFormHeading.textContent = 'Set New Goal.';
-        goalCancelEditBtn.style.display = 'none';
-        goalDateInput.value = new Date().toISOString().split('T')[0];
       });
     }
 
@@ -818,88 +807,73 @@ document.addEventListener('DOMContentLoaded', () => {
             'Authorization': 'Bearer ' + (localStorage.getItem('token') || '')
           }
         });
-
         const goals = await response.json();
 
-        if (response.ok && Array.isArray(goals)) {
-          if (!targetArea) return;
+        if (response.ok && targetArea) {
           targetArea.innerHTML = '';
-
-          if (goals.length === 0) {
-            targetArea.innerHTML = '<p style="color:#64748b; text-align:center; padding: 20px;">No goals found. Set one above!</p>';
-            return;
-          }
-
-          goals.sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt));
-
-          goals.forEach(goal => {
-            const goalCard = document.createElement('div');
-            goalCard.className = 'card';
-            goalCard.style.cssText = `margin-bottom: 12px; padding: 15px; border: 1px solid #e2e8f0; border-radius: 10px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: flex-start; ${goal.completed ? 'opacity: 0.6; background: #f8fafc;' : ''}`;
-
-            goalCard.innerHTML = `
-              <div style="display: flex; align-items: flex-start; gap: 12px; flex: 1;">
-                <input type="checkbox" class="complete-checkbox" ${goal.completed ? 'checked' : ''} style="width: 20px; height: 20px; cursor: pointer; margin-top: 3px;">
-                <div style="flex: 1;">
-                  <h4 style="margin: 0 0 4px 0; font-size: 1rem; ${goal.completed ? 'text-decoration: line-through; color: #888;' : 'color: #1e293b;'}">${goal.title || goal.goalText}</h4>
-                  ${goal.details ? `<p style="margin: 0 0 6px 0; font-size: 0.85rem; color: #475569; word-break: break-word;">${goal.details}</p>` : ''}
-                  <span style="font-size: 0.75rem; color: #64748b;">Target: ${goal.date ? goal.date.split('T')[0] : 'Today'}</span>
+          if (goals.length > 0) {
+            goals.forEach(goal => {
+              const goalCard = document.createElement('div');
+              goalCard.className = 'card';
+              goalCard.style.cssText = 'margin-bottom: 15px; padding: 15px; background: #fff; border-radius: 10px; border: 1px solid #e2e8f0;';
+              
+              goalCard.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <h4 style="margin: 0; color: #0f172a; font-size: 1rem;">${goal.title}</h4>
+                  <span style="font-size: 0.75rem; background: #e0f2fe; color: #0284c7; padding: 3px 8px; border-radius: 4px;">📅 ${goal.date ? goal.date.split('T')[0] : 'N/A'}</span>
                 </div>
-              </div>
-              <div style="display: flex; gap: 8px;">
-                <button class="update-goal-btn" style="padding: 6px 12px; background: #f59e0b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600;">Edit</button>
-                <button class="delete-goal-btn" style="padding: 6px 12px; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600;">Delete</button>
-              </div>
-            `;
+                <p style="margin: 0 0 12px 0; font-size: 0.85rem; color: #475569;">${goal.details || ''}</p>
+                <div style="display: flex; gap: 8px;">
+                  <button class="edit-goal-btn" style="padding: 4px 10px; background: #f59e0b; color: white; border: none; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">Edit</button>
+                  <button class="delete-goal-btn" style="padding: 4px 10px; background: #ef4444; color: white; border: none; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">Delete</button>
+                </div>
+              `;
 
-            const checkbox = goalCard.querySelector('.complete-checkbox');
-            checkbox.addEventListener('change', async () => {
-              try {
-                await fetch(`${API_BASE_URL}/api/goals/update/${goal._id}`, {
-                  method: 'PUT',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + (localStorage.getItem('token') || '')
-                  },
-                  body: JSON.stringify({ completed: checkbox.checked })
-                });
-                fetchGoals();
-              } catch (err) {
-                console.error('Toggle Goal Error:', err);
-              }
-            });
+              goalCard.querySelector('.edit-goal-btn').addEventListener('click', () => {
+                editGoalIdField.value = goal._id;
+                goalTitleInput.value = goal.title;
+                if (goalDateInput) goalDateInput.value = goal.date ? goal.date.split('T')[0] : todayFormatted;
+                if (goalDetailsInput) goalDetailsInput.value = goal.details || '';
+                if (goalFormHeading) goalFormHeading.textContent = 'Edit Goal';
+                if (goalCancelEditBtn) goalCancelEditBtn.style.display = 'inline-block';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              });
 
-            goalCard.querySelector('.update-goal-btn').addEventListener('click', () => {
-              if (editGoalIdField) editGoalIdField.value = goal._id;
-              if (goalTitleInput) goalTitleInput.value = goal.title || goal.goalText || '';
-              if (goalDateInput) goalDateInput.value = goal.date ? goal.date.split('T')[0] : todayFormatted;
-              if (goalDetailsInput) goalDetailsInput.value = goal.details || '';
-              if (goalSubmitBtn) goalSubmitBtn.textContent = 'Update Goal';
-              if (goalFormHeading) goalFormHeading.textContent = 'Edit Goal.';
-              if (goalCancelEditBtn) goalCancelEditBtn.style.display = 'inline-block';
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-
-            goalCard.querySelector('.delete-goal-btn').addEventListener('click', async () => {
-              try {
-                const res = await fetch(`${API_BASE_URL}/api/goals/delete/${goal._id}`, {
-                  method: 'DELETE',
-                  headers: {
-                    'Authorization': 'Bearer ' + (localStorage.getItem('token') || '')
+              goalCard.querySelector('.delete-goal-btn').addEventListener('click', async () => {
+                try {
+                  const delRes = await fetch(`${API_BASE_URL}/api/goals/delete/${goal._id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+                  });
+                  if (delRes.ok) {
+                    fetchGoals();
+                  } else {
+                    showAlert('error', 'Error', 'Failed to delete goal.');
                   }
-                });
-                if (res.ok) fetchGoals();
-              } catch (err) {
-                console.error('Delete Goal Error:', err);
-              }
-            });
+                } catch (err) {
+                  console.error('Delete Goal Error:', err);
+                }
+              });
 
-            targetArea.appendChild(goalCard);
-          });
+              targetArea.appendChild(goalCard);
+            });
+          } else {
+            targetArea.innerHTML = '<p style="text-align: center; color: #64748b;">No goals found. Add one!</p>';
+          }
         }
       } catch (err) {
-        console.error('Fetch Goals Error:', err);
+        console.error('Error fetching goals:', err);
       }
+    }
+
+    if (goalCancelEditBtn) {
+      goalCancelEditBtn.addEventListener('click', () => {
+        goalEntryForm.reset();
+        editGoalIdField.value = '';
+        if (goalFormHeading) goalFormHeading.textContent = 'Add New Goal';
+        goalCancelEditBtn.style.display = 'none';
+        if (goalDateInput) goalDateInput.value = todayFormatted;
+      });
     }
 
     fetchGoals();
