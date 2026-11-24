@@ -76,19 +76,6 @@ function editDiary(id, title, date, mood, details) {
   window.location.href = 'diary.html';
 }
 
-// Global function for handling file selection display name (Fixed in Global Scope)
-function handleFileSelect(input) {
-  const fileNameDisplay = document.getElementById('fileNameDisplay');
-  if (!fileNameDisplay) return;
-  
-  if (input.files && input.files[0]) {
-    fileNameDisplay.textContent = input.files[0].name;
-    fileNameDisplay.style.color = '#28a745';
-  } else {
-    fileNameDisplay.textContent = '';
-  }
-}
-
 document.addEventListener('DOMContentLoaded', () => {
 
   // Global variables for Alert Modal
@@ -105,6 +92,22 @@ document.addEventListener('DOMContentLoaded', () => {
       alertModal.style.display = 'none';
       if (window.alertRedirectUrl) {
         window.location.href = window.alertRedirectUrl;
+      }
+    });
+  }
+
+  // File selection listener for diary attachment (Replaced inline onchange)
+  const diaryFileInput = document.getElementById('diaryFile');
+  if (diaryFileInput) {
+    diaryFileInput.addEventListener('change', function() {
+      const fileNameDisplay = document.getElementById('fileNameDisplay');
+      if (!fileNameDisplay) return;
+      
+      if (this.files && this.files[0]) {
+        fileNameDisplay.textContent = this.files[0].name;
+        fileNameDisplay.style.color = '#28a745';
+      } else {
+        fileNameDisplay.textContent = '';
       }
     });
   }
