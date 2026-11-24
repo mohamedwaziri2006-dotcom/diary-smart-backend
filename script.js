@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // File selection listener for diary attachment (Replaced inline onchange)
+  // File selection listener for diary attachment
   const diaryFileInput = document.getElementById('diaryFile');
   if (diaryFileInput) {
     diaryFileInput.addEventListener('change', function() {
@@ -610,7 +610,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // 7.5 FETCH & DISPLAY ALL ATTACHMENTS (FOR ATTACHMENTS.HTML)
   // ==========================================================================
   if (window.location.pathname.includes('attachments.html')) {
-    const container = document.getElementById('attachmentsContainer') || document.querySelector('main') || document.body;
     const token = localStorage.getItem('token');
 
     if (!token) {
@@ -628,28 +627,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         const tasks = await response.json();
+        const gridArea = document.getElementById('attachmentsGrid');
+
+        if (!gridArea) return;
+        gridArea.innerHTML = '';
 
         if (response.ok && Array.isArray(tasks)) {
           const attachedEntries = tasks.filter(task => task.fileUrl);
 
-          let gridArea = document.getElementById('attachmentsGridArea');
-          if (!gridArea) {
-            gridArea = document.createElement('div');
-            gridArea.id = 'attachmentsGridArea';
-            gridArea.style.cssText = 'max-width: 1100px; margin: 20px auto; padding: 0 20px;';
-            container.appendChild(gridArea);
-          }
-
-          gridArea.innerHTML = '';
-
           if (attachedEntries.length > 0) {
-            const titleHeader = document.createElement('h3');
-            titleHeader.textContent = `All Attachments (${attachedEntries.length})`;
-            titleHeader.style.cssText = 'margin-bottom: 20px; color: #1e293b; font-size: 1.2rem;';
-            gridArea.appendChild(titleHeader);
-
             const cardsGrid = document.createElement('div');
-            cardsGrid.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;';
+            cardsGrid.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; width: 100%;';
 
             attachedEntries.forEach(task => {
               const card = document.createElement('div');
@@ -675,11 +663,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             gridArea.appendChild(cardsGrid);
           } else {
-            gridArea.innerHTML = '<div style="text-align: center; color: #64748b; padding: 50px; font-size: 1rem;">Hakuna mafaili yoyote yaliyowekwa kwenye diary zako bado.</div>';
+            gridArea.innerHTML = '<p style="text-align: center; color: #64748b; padding: 40px; width: 100%;">Hakuna mafaili yoyote yaliyowekwa kwenye diary zako bado.</p>';
           }
         }
       } catch (err) {
         console.error('Error loading attachments:', err);
+        const gridArea = document.getElementById('attachmentsGrid');
+        if (gridArea) {
+          gridArea.innerHTML = '<p style="text-align: center; color: #ef4444; padding: 40px;">Imeshindikana kupakia mafaili.</p>';
+        }
       }
     }
 
