@@ -23,6 +23,11 @@ const DiarySchema = new mongoose.Schema({
   },
   date: {
     type: String
+  },
+  // Uwanja huu mpya unahifadhi link ya faili (Picha au PDF) kutoka Cloudflare R2
+  fileUrl: {
+    type: String,
+    default: ''
   }
 });
 
