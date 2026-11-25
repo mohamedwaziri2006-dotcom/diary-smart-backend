@@ -96,18 +96,69 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // File selection listener for diary attachment
-  const diaryFileInput = document.getElementById('diaryFile');
-  if (diaryFileInput) {
-    diaryFileInput.addEventListener('change', function() {
-      const fileNameDisplay = document.getElementById('fileNameDisplay');
-      if (!fileNameDisplay) return;
+  // ==========================================================================
+  // 0. AUTO-UPLOAD YA ATTACHMENTS (MARA TU FAILI LINAPOCHAGULIWA)
+  // ==========================================================================
+  const diaryFileinput = document.getElementById('diaryFile');
+  const fileNameDisplay = document.getElementById('fileNameDisplay');
+
+  if (diaryFileinput) {
+    diaryFileinput.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      if (fileNameDisplay) {
+        fileNameDisplay.textContent = `Inapakia: ${file.name}...`;
+        fileNameDisplay.style.color = '#f59e0b'; // Rangi ya njano
+      }
+
+      const formData = new FormData();
+      formData.append('file', file);
       
-      if (this.files && this.files[0]) {
-        fileNameDisplay.textContent = this.files[0].name;
-        fileNameDisplay.style.color = '#28a745';
-      } else {
-        fileNameDisplay.textContent = '';
+      const titleInput = document.getElementById('entryTitle');
+      const detailsInput = document.getElementById('entryDetails');
+      const moodInput = document.getElementById('entryMood');
+      const dateInput = document.getElementById('entryDate');
+      const userId = localStorage.getItem('userId');
+
+      formData.append('userId', userId || '');
+      formData.append('title', titleInput && titleInput.value ? titleInput.value : 'Diary Attachment');
+      formData.append('content', detailsInput ? detailsInput.value : '');
+      formData.append('mood', moodInput ? moodInput.value : 'Happy');
+      formData.append('date', dateInput ? dateInput.value : new Date().toISOString().split('T')[0]);
+
+      try {
+        const token = localStorage.getItem('token');
+        
+        // Kutumia API_BASE_URL sahihi kwenda kwenye Render backend
+        const response = await fetch(`${API_BASE_URL}/api/diary/upload`, {
+          method: 'POST',
+          headers: {
+            'Authorization': token ? `Bearer ${token}` : ''
+          },
+          body: formData
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          if (fileNameDisplay) {
+            fileNameDisplay.textContent = `✅ ${file.name} imehifadhiwa!`;
+            fileNameDisplay.style.color = '#10b981'; // Rangi ya kijani
+          }
+        } else {
+          if (fileNameDisplay) {
+            fileNameDisplay.textContent = `❌ Imeshindikana kupakia`;
+            fileNameDisplay.style.color = '#ef4444'; // Rangi nyekundu
+          }
+          console.error('Hitilafu kutoka server:', result.message);
+        }
+      } catch (error) {
+        console.error('Kosa la mtandao wakati wa kupakia faili:', error);
+        if (fileNameDisplay) {
+          fileNameDisplay.textContent = `❌ Kosa la mtandao`;
+          fileNameDisplay.style.color = '#ef4444';
+        }
       }
     });
   }
@@ -677,72 +728,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     fetchAllAttachments();
   }
-  // --- SEHEMU YA AUTO-UPLOAD YA ATTACHMENTS ---
-document.addEventListener('DOMContentLoaded', () => {
-  const diaryFileinput = document.getElementById('diaryFile');
-  const fileNameDisplay = document.getElementById('fileNameDisplay');
 
-  if (diaryFileinput) {
-    diaryFileinput.addEventListener('change', async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      // Onyesha jina la faili na ujumbe wa upakiaji kwenye skrini
-      if (fileNameDisplay) {
-        fileNameDisplay.textContent = `Inapakia: ${file.name}...`;
-        fileNameDisplay.style.color = '#f59e0b'; // Rangi ya njano wakati inapakia
-      }
-
-      // Kusanya data za fomu zilizopo kwa wakati huo ili zitumike na faili
-      const formData = new FormData();
-      formData.append('file', file);
-      
-      const titleInput = document.getElementById('entryTitle');
-      const detailsInput = document.getElementById('entryDetails');
-      const moodInput = document.getElementById('entryMood');
-      const dateInput = document.getElementById('entryDate');
-
-      formData.append('title', titleInput && titleInput.value ? titleInput.value : 'Diary Attachment');
-      formData.append('content', detailsInput ? detailsInput.value : '');
-      formData.append('mood', moodInput ? moodInput.value : 'Happy');
-      formData.append('date', dateInput ? dateInput.value : new Date().toISOString().split('T')[0]);
-
-      try {
-        const token = localStorage.getItem('token');
-        
-        // Tuma ombi moja kwa moja kwenye endpoint yako ya backend
-        const response = await fetch('/api/diary/upload', {
-          method: 'POST',
-          headers: {
-            'Authorization': token ? `Bearer ${token}` : ''
-          },
-          body: formData
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-          if (fileNameDisplay) {
-            fileNameDisplay.textContent = `✅ ${file.name} imehifadhiwa!`;
-            fileNameDisplay.style.color = '#10b981'; // Rangi ya kijani ya mafanikio
-          }
-        } else {
-          if (fileNameDisplay) {
-            fileNameDisplay.textContent = `❌ Imeshindikana kupakia`;
-            fileNameDisplay.style.color = '#ef4444'; // Rangi nyekundu ya kosa
-          }
-          console.error('Hitilafu kutoka server:', result.message);
-        }
-      } catch (error) {
-        console.error('Kosa la mtandao wakati wa kupakia faili:', error);
-        if (fileNameDisplay) {
-          fileNameDisplay.textContent = `❌ Kosa la mtandao`;
-          fileNameDisplay.style.color = '#ef4444';
-        }
-      }
-    });
-  }
-});
   // ==========================================================================
   // 8. PROFILE MODAL & USER INFO HANDLING
   // ==========================================================================
@@ -777,166 +763,6 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.clear();
       window.location.href = 'index.html';
     });
-  }
-
-  // ==========================================================================
-  // 9. GOALS TRACKER LOGIC
-  // ==========================================================================
-  if (window.location.pathname.includes('goals.html')) {
-    
-    const goalEntryForm = document.getElementById('goalEntryForm');
-    const goalTitleInput = document.getElementById('goalTitleInput');
-    const goalDateInput = document.getElementById('goalDateInput');
-    const goalDetailsInput = document.getElementById('goalDetailsInput');
-    const editGoalIdField = document.getElementById('editGoalId');
-    const goalSubmitBtn = document.getElementById('goalSubmitBtn');
-    const goalCancelEditBtn = document.getElementById('goalCancelEditBtn');
-    const goalFormHeading = document.getElementById('goalFormHeading');
-    const targetArea = document.getElementById('goalsListArea');
-
-    const todayFormatted = new Date().toISOString().split('T')[0];
-    if (goalDateInput && !goalDateInput.value) {
-      goalDateInput.value = todayFormatted;
-    }
-
-    if (goalEntryForm) {
-      goalEntryForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const title = goalTitleInput.value.trim();
-        const date = goalDateInput.value;
-        const details = goalDetailsInput.value.trim();
-        const editId = editGoalIdField.value;
-        const userId = localStorage.getItem('userId');
-
-        if (!userId) {
-          showAlert('error', 'Session Expired!', 'Please login to save goals.', 'index.html');
-          return;
-        }
-
-        if (!title) {
-          showAlert('error', 'Validation Error', 'Please enter a goal title.');
-          return;
-        }
-
-        let originalBtnText = goalSubmitBtn.textContent;
-        goalSubmitBtn.disabled = true;
-        goalSubmitBtn.textContent = 'Saving...';
-
-        try {
-          const url = editId ? `${API_BASE_URL}/api/goals/update/${editId}` : `${API_BASE_URL}/api/goals/add`;
-          const method = editId ? 'PUT' : 'POST';
-
-          const response = await fetch(url, {
-            method: method,
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + (localStorage.getItem('token') || '')
-            },
-            body: JSON.stringify({ userId, title, date, details })
-          });
-
-          const data = await response.json();
-
-          if (response.ok) {
-            showAlert('success', 'Saved!', 'Goal saved successfully!');
-            goalEntryForm.reset();
-            editGoalIdField.value = '';
-            if (goalFormHeading) goalFormHeading.textContent = 'Add New Goal';
-            if (goalCancelEditBtn) goalCancelEditBtn.style.display = 'none';
-            if (goalDateInput) goalDateInput.value = todayFormatted;
-            fetchGoals();
-          } else {
-            showAlert('error', 'Error!', data.message || 'Failed to save goal.');
-          }
-        } catch (err) {
-          console.error('Goal Save Error:', err);
-          showAlert('error', 'Error', 'Network connection error.');
-        } finally {
-          goalSubmitBtn.disabled = false;
-          goalSubmitBtn.textContent = originalBtnText;
-        }
-      });
-    }
-
-    async function fetchGoals() {
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/goals/my-goals`, {
-          method: 'GET',
-          headers: {
-            'Authorization': 'Bearer ' + (localStorage.getItem('token') || '')
-          }
-        });
-        const goals = await response.json();
-
-        if (response.ok && targetArea) {
-          targetArea.innerHTML = '';
-          if (goals.length > 0) {
-            goals.forEach(goal => {
-              const goalCard = document.createElement('div');
-              goalCard.className = 'card';
-              goalCard.style.cssText = 'margin-bottom: 15px; padding: 15px; background: #fff; border-radius: 10px; border: 1px solid #e2e8f0;';
-              
-              goalCard.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                  <h4 style="margin: 0; color: #0f172a; font-size: 1rem;">${goal.title}</h4>
-                  <span style="font-size: 0.75rem; background: #e0f2fe; color: #0284c7; padding: 3px 8px; border-radius: 4px;">📅 ${goal.date ? goal.date.split('T')[0] : 'N/A'}</span>
-                </div>
-                <p style="margin: 0 0 12px 0; font-size: 0.85rem; color: #475569;">${goal.details || ''}</p>
-                <div style="display: flex; gap: 8px;">
-                  <button class="edit-goal-btn" style="padding: 4px 10px; background: #f59e0b; color: white; border: none; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">Edit</button>
-                  <button class="delete-goal-btn" style="padding: 4px 10px; background: #ef4444; color: white; border: none; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">Delete</button>
-                </div>
-              `;
-
-              goalCard.querySelector('.edit-goal-btn').addEventListener('click', () => {
-                editGoalIdField.value = goal._id;
-                goalTitleInput.value = goal.title;
-                if (goalDateInput) goalDateInput.value = goal.date ? goal.date.split('T')[0] : todayFormatted;
-                if (goalDetailsInput) goalDetailsInput.value = goal.details || '';
-                if (goalFormHeading) goalFormHeading.textContent = 'Edit Goal';
-                if (goalCancelEditBtn) goalCancelEditBtn.style.display = 'inline-block';
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              });
-
-              goalCard.querySelector('.delete-goal-btn').addEventListener('click', async () => {
-                try {
-                  const delRes = await fetch(`${API_BASE_URL}/api/goals/delete/${goal._id}`, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
-                  });
-                  if (delRes.ok) {
-                    fetchGoals();
-                  } else {
-                    showAlert('error', 'Error', 'Failed to delete goal.');
-                  }
-                } catch (err) {
-                  console.error('Delete Goal Error:', err);
-                }
-              });
-
-              targetArea.appendChild(goalCard);
-            });
-          } else {
-            targetArea.innerHTML = '<p style="text-align: center; color: #64748b;">No goals found. Add one!</p>';
-          }
-        }
-      } catch (err) {
-        console.error('Error fetching goals:', err);
-      }
-    }
-
-    if (goalCancelEditBtn) {
-      goalCancelEditBtn.addEventListener('click', () => {
-        goalEntryForm.reset();
-        editGoalIdField.value = '';
-        if (goalFormHeading) goalFormHeading.textContent = 'Add New Goal';
-        goalCancelEditBtn.style.display = 'none';
-        if (goalDateInput) goalDateInput.value = todayFormatted;
-      });
-    }
-
-    fetchGoals();
   }
 
 });
