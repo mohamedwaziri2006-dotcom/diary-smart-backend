@@ -72,10 +72,10 @@
 
                 <!-- Kundi la kuattach faili (Kulia) -->
                 <div class="attach-group">
-                  <!-- Jina la faili litaonekana hapa -->
+                  <!-- Jina la faili au hali ya upakiaji itaonekana hapa -->
                   <span id="fileNameDisplay" class="file-name-display"></span>
 
-                  <!-- Input halisi imefichwa (Bila onchange ya zamani) -->
+                  <!-- Input ya faili (Imefichwa) -->
                   <input type="file" id="diaryFile" accept="image/*,.pdf" class="d-none">
                   
                   <!-- Kitufe cha Icon ya Klipu (Paperclip) -->
@@ -100,7 +100,6 @@
 
   <!-- Bottom Navigation Bar for DIARY SMART -->
   <nav class="bottom-nav">
-    <!-- 1. Diary (Active) -->
     <a href="diary.html" class="nav-item active">
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
@@ -109,14 +108,12 @@
         <line x1="9" y1="11" x2="15" y2="11"></line>
       </svg>
     </a>
-    <!-- 2. Tasks -->
     <a href="tasks.html" class="nav-item">
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="9 11 12 14 22 4"></polyline>
         <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
       </svg>
     </a>
-    <!-- 3. Goals -->
     <a href="goals.html" class="nav-item">
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="10"></circle>
@@ -124,7 +121,6 @@
         <circle cx="12" cy="12" r="2"></circle>
       </svg>
     </a>
-    <!-- 4. Settings -->
     <a href="settings.html" class="nav-item">
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="3"></circle>
@@ -159,15 +155,14 @@
   <!-- Custom Alert Modal -->
   <div id="alertModal" class="modal-overlay">
     <div class="modal-card alert-card">
-      <div id="statusIcon" class="status-icon-wrapper success">
-        <!-- Icon -->
-      </div>
+      <div id="statusIcon" class="status-icon-wrapper success"></div>
       <h3 id="alertTitle" class="alert-title">Success!</h3>
       <p id="alertMessage" class="alert-message">Ujumbe wako hapa...</p>
       <button id="alertBtn" class="btn btn-primary btn-full">OK</button>
     </div>
   </div>
 
+  <!-- Unatumia script.js ya nje pekee -->
   <script src="script.js"></script>
 </body>
 </html>

@@ -677,7 +677,72 @@ document.addEventListener('DOMContentLoaded', () => {
 
     fetchAllAttachments();
   }
+  // --- SEHEMU YA AUTO-UPLOAD YA ATTACHMENTS ---
+document.addEventListener('DOMContentLoaded', () => {
+  const diaryFileinput = document.getElementById('diaryFile');
+  const fileNameDisplay = document.getElementById('fileNameDisplay');
 
+  if (diaryFileinput) {
+    diaryFileinput.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      // Onyesha jina la faili na ujumbe wa upakiaji kwenye skrini
+      if (fileNameDisplay) {
+        fileNameDisplay.textContent = `Inapakia: ${file.name}...`;
+        fileNameDisplay.style.color = '#f59e0b'; // Rangi ya njano wakati inapakia
+      }
+
+      // Kusanya data za fomu zilizopo kwa wakati huo ili zitumike na faili
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const titleInput = document.getElementById('entryTitle');
+      const detailsInput = document.getElementById('entryDetails');
+      const moodInput = document.getElementById('entryMood');
+      const dateInput = document.getElementById('entryDate');
+
+      formData.append('title', titleInput && titleInput.value ? titleInput.value : 'Diary Attachment');
+      formData.append('content', detailsInput ? detailsInput.value : '');
+      formData.append('mood', moodInput ? moodInput.value : 'Happy');
+      formData.append('date', dateInput ? dateInput.value : new Date().toISOString().split('T')[0]);
+
+      try {
+        const token = localStorage.getItem('token');
+        
+        // Tuma ombi moja kwa moja kwenye endpoint yako ya backend
+        const response = await fetch('/api/diary/upload', {
+          method: 'POST',
+          headers: {
+            'Authorization': token ? `Bearer ${token}` : ''
+          },
+          body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          if (fileNameDisplay) {
+            fileNameDisplay.textContent = `✅ ${file.name} imehifadhiwa!`;
+            fileNameDisplay.style.color = '#10b981'; // Rangi ya kijani ya mafanikio
+          }
+        } else {
+          if (fileNameDisplay) {
+            fileNameDisplay.textContent = `❌ Imeshindikana kupakia`;
+            fileNameDisplay.style.color = '#ef4444'; // Rangi nyekundu ya kosa
+          }
+          console.error('Hitilafu kutoka server:', result.message);
+        }
+      } catch (error) {
+        console.error('Kosa la mtandao wakati wa kupakia faili:', error);
+        if (fileNameDisplay) {
+          fileNameDisplay.textContent = `❌ Kosa la mtandao`;
+          fileNameDisplay.style.color = '#ef4444';
+        }
+      }
+    });
+  }
+});
   // ==========================================================================
   // 8. PROFILE MODAL & USER INFO HANDLING
   // ==========================================================================
