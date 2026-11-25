@@ -96,69 +96,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ==========================================================================
-  // 0. AUTO-UPLOAD YA ATTACHMENTS (MARA TU FAILI LINAPOCHAGULIWA)
-  // ==========================================================================
-  const diaryFileinput = document.getElementById('diaryFile');
-  const fileNameDisplay = document.getElementById('fileNameDisplay');
-
-  if (diaryFileinput) {
-    diaryFileinput.addEventListener('change', async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      if (fileNameDisplay) {
-        fileNameDisplay.textContent = `Inapakia: ${file.name}...`;
-        fileNameDisplay.style.color = '#f59e0b'; // Rangi ya njano
-      }
-
-      const formData = new FormData();
-      formData.append('file', file);
+  // File selection listener for diary attachment (Onyesha jina la faili tu litakapochaguliwa)
+  const diaryFileInput = document.getElementById('diaryFile');
+  if (diaryFileInput) {
+    diaryFileInput.addEventListener('change', function() {
+      const fileNameDisplay = document.getElementById('fileNameDisplay');
+      if (!fileNameDisplay) return;
       
-      const titleInput = document.getElementById('entryTitle');
-      const detailsInput = document.getElementById('entryDetails');
-      const moodInput = document.getElementById('entryMood');
-      const dateInput = document.getElementById('entryDate');
-      const userId = localStorage.getItem('userId');
-
-      formData.append('userId', userId || '');
-      formData.append('title', titleInput && titleInput.value ? titleInput.value : 'Diary Attachment');
-      formData.append('content', detailsInput ? detailsInput.value : '');
-      formData.append('mood', moodInput ? moodInput.value : 'Happy');
-      formData.append('date', dateInput ? dateInput.value : new Date().toISOString().split('T')[0]);
-
-      try {
-        const token = localStorage.getItem('token');
-        
-        // Kutumia API_BASE_URL sahihi kwenda kwenye Render backend
-        const response = await fetch(`${API_BASE_URL}/api/diary/upload`, {
-          method: 'POST',
-          headers: {
-            'Authorization': token ? `Bearer ${token}` : ''
-          },
-          body: formData
-        });
-
-        const result = await response.json();
-
-        if (response.ok && result.success) {
-          if (fileNameDisplay) {
-            fileNameDisplay.textContent = `✅ ${file.name} imehifadhiwa!`;
-            fileNameDisplay.style.color = '#10b981'; // Rangi ya kijani
-          }
-        } else {
-          if (fileNameDisplay) {
-            fileNameDisplay.textContent = `❌ Imeshindikana kupakia`;
-            fileNameDisplay.style.color = '#ef4444'; // Rangi nyekundu
-          }
-          console.error('Hitilafu kutoka server:', result.message);
-        }
-      } catch (error) {
-        console.error('Kosa la mtandao wakati wa kupakia faili:', error);
-        if (fileNameDisplay) {
-          fileNameDisplay.textContent = `❌ Kosa la mtandao`;
-          fileNameDisplay.style.color = '#ef4444';
-        }
+      if (this.files && this.files[0]) {
+        fileNameDisplay.textContent = `📎 ${this.files[0].name}`;
+        fileNameDisplay.style.color = '#10b981'; // Kijani kuashiria faili limechaguliwa
+      } else {
+        fileNameDisplay.textContent = '';
       }
     });
   }
@@ -425,7 +374,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================================================
-  // 6. DIARY FORM & API INTEGRATION (ADD OR UPDATE WITH FILE UPLOAD)
+  // 6. DIARY FORM & API INTEGRATION (HAPA NDIPO FAILI LINAPOSAFIRI PAMOJA NA FOMU KUU KWENDA /UPLOAD)
   // ==========================================================================
   const diaryForm = document.getElementById('diaryForm');
   if (diaryForm && window.location.pathname.includes('diary.html')) {
@@ -478,12 +427,13 @@ document.addEventListener('DOMContentLoaded', () => {
       if (diarySubmitBtn) {
         originalDiaryBtnText = diarySubmitBtn.innerHTML;
         diarySubmitBtn.disabled = true;
-        diarySubmitBtn.innerHTML = 'Saving with file...';
+        diarySubmitBtn.innerHTML = 'Saving entry & file...';
       }
 
       try {
         const currentEditId = localStorage.getItem('editId');
-        const url = currentEditId ? `${API_BASE_URL}/api/diary/update/${currentEditId}` : `${API_BASE_URL}/api/diary/add`;
+        // Zote zinatumia route ya /api/diary/upload ambayo inatunza faili na fomu kwa pamoja
+        const url = currentEditId ? `${API_BASE_URL}/api/diary/update/${currentEditId}` : `${API_BASE_URL}/api/diary/upload`;
         const method = currentEditId ? 'PUT' : 'POST';
 
         const formData = new FormData();
@@ -492,6 +442,7 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('date', date);
         formData.append('mood', mood);
         formData.append('details', details);
+        formData.append('content', details);
 
         if (fileInput && fileInput.files[0]) {
           formData.append('file', fileInput.files[0]);
@@ -507,7 +458,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const data = await response.json();
 
-        if (response.ok) {
+        if (response.ok && data.success) {
           localStorage.removeItem('editId');
           localStorage.removeItem('editTitle');
           localStorage.removeItem('editDate');
@@ -684,7 +635,7 @@ document.addEventListener('DOMContentLoaded', () => {
         gridArea.innerHTML = '';
 
         if (response.ok && Array.isArray(tasks)) {
-          const attachedEntries = tasks.filter(task => task.fileUrl);
+          const attachedEntries = tasks.filter(task => task.fileUrl && task.fileUrl.trim() !== '');
 
           if (attachedEntries.length > 0) {
             const cardsGrid = document.createElement('div');
