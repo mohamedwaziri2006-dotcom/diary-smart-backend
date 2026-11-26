@@ -4,7 +4,7 @@ const multer = require('multer');
 
 // Hakikisha jina la faili hapa linafanana sawia na lililopo kwenye folda ya controllers
 const { addDiaryEntry } = require('../controllers/fileController'); 
-const verifyToken = require('../middleware/authMiddleware');
+const verifyToken = require('../middleware/auth');
 
 // Weka multer itumie memoryStorage
 const upload = multer({
