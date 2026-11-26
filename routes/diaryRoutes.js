@@ -12,7 +12,10 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 } // Kikomo cha 10MB
 });
 
-// Route ya kupakia faili na kuhifadhi diary kwa pamoja
+// Route ya kupakia faili na kuhifadhi diary mpya kwa pamoja
 router.post('/upload', verifyToken, upload.single('file'), addDiaryEntry);
+
+// Route ya kusasisha (update) diary iliyopo pamoja na faili lake jipya kama lipo
+router.put('/update/:id', verifyToken, upload.single('file'), addDiaryEntry);
 
 module.exports = router;
