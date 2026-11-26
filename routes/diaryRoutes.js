@@ -2,11 +2,11 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 
-// Tumia addDiaryEntry kama ilivyo kwenye fileController.js yako
+// Hakikisha jina la faili hapa linafanana sawia na lililopo kwenye folda ya controllers
 const { addDiaryEntry } = require('../controllers/fileController'); 
-const verifyToken = require('../middleware/authMiddleware'); // Middleware ya kulinda routes
+const verifyToken = require('../middleware/authMiddleware');
 
-// Weka multer itumie memoryStorage ili isitunze faili kwenye diski ya seva (kuzuia kujaa kwa 512MB)
+// Weka multer itumie memoryStorage
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024 } // Kikomo cha 10MB
@@ -15,7 +15,7 @@ const upload = multer({
 // Route ya kupakia faili na kuhifadhi diary mpya kwa pamoja
 router.post('/upload', verifyToken, upload.single('file'), addDiaryEntry);
 
-// Route ya kusasisha (update) diary iliyopo pamoja na faili lake jipya kama lipo
+// Route ya kusasisha diary
 router.put('/update/:id', verifyToken, upload.single('file'), addDiaryEntry);
 
 module.exports = router;
