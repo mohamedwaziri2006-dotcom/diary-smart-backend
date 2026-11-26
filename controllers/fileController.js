@@ -1,6 +1,6 @@
 const Diary = require('../models/Diary');
 const { PutObjectCommand } = require('@aws-sdk/client-s3');
-const r2Client = require('../config/r2'); // Usanidi wako wa Cloudflare R2
+const r2Client = require('../config/r2'); // Hakikisha faili lako la r2.js linatumia S3Client na limewekwa region: 'auto'
 
 const addDiaryEntry = async (req, res) => {
   try {
