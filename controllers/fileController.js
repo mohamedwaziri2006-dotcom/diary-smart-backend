@@ -1,6 +1,6 @@
 const Diary = require('../models/Diary');
 const { PutObjectCommand } = require('@aws-sdk/client-s3');
-const r2Client = require('../config/r2'); // Hakikisha faili lako la r2.js linatumia S3Client na limewekwa region: 'auto'
+const r2Client = require('../config/r2'); // Usanidi wako wa Cloudflare R2
 
 const addDiaryEntry = async (req, res) => {
   try {
@@ -9,7 +9,7 @@ const addDiaryEntry = async (req, res) => {
 
     // 1. Kama mtumiaji amepakia faili jipya, lipakie kwenda Cloudflare R2
     if (req.file) {
-      const userId = req.user ? (req.user.id || req.user._id) : (req.body.userId || 'guest');
+      const userId = (req.user && (req.user.id || req.user._id)) || req.body.userId || 'guest';
       const uniqueFileName = `users/${userId}/${Date.now()}-${req.file.originalname}`;
       
       const uploadParams = {
@@ -25,7 +25,7 @@ const addDiaryEntry = async (req, res) => {
       fileUrl = `https://pub-af5cc6f5458d4f00be2878c9551752d0.r2.dev/${uniqueFileName}`;
     }
 
-    const activeUserId = req.user ? (req.user.id || req.user._id) : req.body.userId;
+    const activeUserId = (req.user && (req.user.id || req.user._id)) || req.body.userId;
 
     if (!activeUserId) {
       return res.status(400).json({ success: false, message: 'Kitambulisho cha mtumiaji (userId) kinahitajika.' });
@@ -35,13 +35,11 @@ const addDiaryEntry = async (req, res) => {
     const entryId = req.params.id;
 
     if (entryId) {
-      // Tafuta diary ya zamani
       const existingEntry = await Diary.findById(entryId);
       if (!existingEntry) {
         return res.status(404).json({ success: false, message: 'Diary haijapatikana.' });
       }
 
-      // Kama hakuna faili jipya lililowekwa, tumia faili la zamani lilelile
       const finalFileUrl = fileUrl ? fileUrl : existingEntry.fileUrl;
 
       existingEntry.title = title || existingEntry.title;
@@ -60,7 +58,7 @@ const addDiaryEntry = async (req, res) => {
       });
     }
 
-    // 3. Kama siyo update, tengeneza diary mpya kabisa (POST /upload)
+    // 3. Tengeneza diary mpya kabisa (POST /upload)
     const newDiary = new Diary({
       userId: activeUserId,
       title,

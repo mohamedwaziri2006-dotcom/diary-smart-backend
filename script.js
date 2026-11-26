@@ -113,13 +113,19 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================================================
-  // 1. MOOD SELECTOR & CATEGORY PILLS
+  // 1. MOOD SELECTOR & CATEGORY PILLS (Imeboreshwa kuhifadhi hali ya kuchagua)
   // ==========================================================================
   const moodBtns = document.querySelectorAll('.mood-btn');
   moodBtns.forEach(btn => {
     btn.addEventListener('click', () => {
-      moodBtns.forEach(b => b.classList.remove('selected'));
+      moodBtns.forEach(b => b.classList.remove('selected', 'active'));
       btn.classList.add('selected');
+      
+      // Ikiwa kuna hidden input ya mood, weka thamani yake moja kwa moja
+      const moodInput = document.getElementById('entryMood');
+      if (moodInput) {
+        moodInput.value = btn.getAttribute('data-mood') || btn.textContent.trim();
+      }
     });
   });
 
@@ -384,10 +390,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const editId = localStorage.getItem('editId');
     if (editId) {
-      document.getElementById('entryTitle').value = localStorage.getItem('editTitle') || '';
+      const titleField = document.getElementById('entryTitle');
+      const moodField = document.getElementById('entryMood');
+      const detailsField = document.getElementById('entryDetails');
+
+      if (titleField) titleField.value = localStorage.getItem('editTitle') || '';
       if (entryDateInput) entryDateInput.value = localStorage.getItem('editDate') ? localStorage.getItem('editDate').split('T')[0] : todayStr;
-      document.getElementById('entryMood').value = localStorage.getItem('editMood') || 'Happy';
-      document.getElementById('entryDetails').value = localStorage.getItem('editDetails') || '';
+      if (moodField) moodField.value = localStorage.getItem('editMood') || 'Happy';
+      if (detailsField) detailsField.value = localStorage.getItem('editDetails') || '';
 
       const submitBtn = diaryForm.querySelector('button[type="submit"]');
       if (submitBtn) submitBtn.textContent = 'Update Diary';
@@ -432,7 +442,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       try {
         const currentEditId = localStorage.getItem('editId');
-        // Zote zinatumia route ya /api/diary/upload ambayo inatunza faili na fomu kwa pamoja
         const url = currentEditId ? `${API_BASE_URL}/api/diary/update/${currentEditId}` : `${API_BASE_URL}/api/diary/upload`;
         const method = currentEditId ? 'PUT' : 'POST';
 
@@ -485,7 +494,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================================================
-  // 7. FETCH & DISPLAY TASKS (FULL CONTAINER GRID LAYOUT WITH VIEW FILE BTN)
+  // 7. FETCH & DISPLAY TASKS
   // ==========================================================================
   const taskGrid = document.querySelector('.grid-dashboard') || document.querySelector('main') || document.body;
   if (window.location.pathname.includes('tasks.html')) {
