@@ -8,27 +8,32 @@ const DiarySchema = new mongoose.Schema({
   },
   title: {
     type: String,
-    required: true
+    required: true,
+    trim: true
   },
   content: {
     type: String,
-    required: false
+    default: ''
   },
   details: {
-    type: String
+    type: String,
+    default: ''
   },
   mood: {
     type: String,
     default: 'Happy'
   },
   date: {
-    type: String
+    type: String,
+    required: true
   },
-  // Uwanja huu mpya unahifadhi link ya faili (Picha au PDF) kutoka Cloudflare R2
+  // Uwanja huu unahifadhi link ya faili (Picha au PDF) kutoka Cloudflare R2
   fileUrl: {
     type: String,
     default: ''
   }
+}, {
+  timestamps: true // Huongeza moja kwa moja createdAt na updatedAt
 });
 
 module.exports = mongoose.model('Diary', DiarySchema);
