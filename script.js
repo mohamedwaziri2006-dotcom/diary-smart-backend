@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // File selection listener for diary attachment (Onyesha jina la faili tu litakapochaguliwa)
+  // File selection listener for diary attachment
   const diaryFileInput = document.getElementById('diaryFile');
   if (diaryFileInput) {
     diaryFileInput.addEventListener('change', function() {
@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
       
       if (this.files && this.files[0]) {
         fileNameDisplay.textContent = `📎 ${this.files[0].name}`;
-        fileNameDisplay.style.color = '#10b981'; // Kijani kuashiria faili limechaguliwa
+        fileNameDisplay.style.color = '#10b981';
       } else {
         fileNameDisplay.textContent = '';
       }
@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================================================
-  // 1. MOOD SELECTOR & CATEGORY PILLS (Imeboreshwa kuhifadhi hali ya kuchagua)
+  // 1. MOOD SELECTOR & CATEGORY PILLS
   // ==========================================================================
   const moodBtns = document.querySelectorAll('.mood-btn');
   moodBtns.forEach(btn => {
@@ -121,7 +121,6 @@ document.addEventListener('DOMContentLoaded', () => {
       moodBtns.forEach(b => b.classList.remove('selected', 'active'));
       btn.classList.add('selected');
       
-      // Ikiwa kuna hidden input ya mood, weka thamani yake moja kwa moja
       const moodInput = document.getElementById('entryMood');
       if (moodInput) {
         moodInput.value = btn.getAttribute('data-mood') || btn.textContent.trim();
@@ -380,7 +379,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================================================
-  // 6. DIARY FORM & API INTEGRATION (HAPA NDIPO FAILI LINAPOSAFIRI PAMOJA NA FOMU KUU KWENDA /UPLOAD)
+  // 6. DIARY FORM & API INTEGRATION (IMEWEKWA ROUTE SAHIHI YA /UPLOAD)
   // ==========================================================================
   const diaryForm = document.getElementById('diaryForm');
   if (diaryForm && window.location.pathname.includes('diary.html')) {
@@ -442,6 +441,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       try {
         const currentEditId = localStorage.getItem('editId');
+        // Hapa tunatumia /upload badala ya /add ili kuendana na diaryRoutes.js
         const url = currentEditId ? `${API_BASE_URL}/api/diary/update/${currentEditId}` : `${API_BASE_URL}/api/diary/upload`;
         const method = currentEditId ? 'PUT' : 'POST';
 
